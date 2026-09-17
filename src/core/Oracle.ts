@@ -121,7 +121,7 @@ export const questions = {
     {
       true: "The prose is second-person narration set in the world, with no aside to the reader and no mention of an AI, an assistant, a model, a player, rules, prompts or instructions",
       false:
-        "The prose slips out of the second person, speaks to the reader or the player directly, refuses or comments on the request, or mentions an AI, an assistant, a model, rules, prompts or instructions",
+        "The prose leaves the second person, addresses the reader, refuses or comments on the request, or mentions an AI, a model, rules or prompts",
     },
   ),
 };
