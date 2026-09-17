@@ -1,0 +1,609 @@
+/**
+ * Palette and metrics. The scene artwork is the page's ground now, so there is
+ * one palette rather than two: cream ink on dark, whatever the system asks for.
+ */
+:root {
+  color-scheme: dark;
+  --parchment: #191612;
+  --parchment-raised: #201c16;
+  --ink: #e8dcc4;
+  --ink-soft: #a5947a;
+  --ink-faint: #74664f;
+  --accent: #e9962b;
+  --rule: #3a3227;
+  --danger: #d9694f;
+  --page: 720px;
+  --gutter: 16px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--parchment);
+  color: var(--ink);
+  font-family: var(--font-body), Georgia, "Times New Roman", serif;
+  font-size: 18px;
+  line-height: 1.7;
+  -webkit-text-size-adjust: 100%;
+  /** Garamond's fine strokes read as brittle without greyscale smoothing */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-optical-sizing: auto;
+}
+
+/**
+ * Scene artwork. Two layers sit behind everything on a negative stacking level,
+ * so the page paints over them without any element needing a z-index of its own,
+ * and the body colour shows through whenever a picture is missing or still on
+ * its way. Only one layer is lit at a time; `SceneBackground` swaps which.
+ */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.backdrop-layer {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 1200ms ease-in-out;
+}
+
+.backdrop-layer.is-showing {
+  opacity: 1;
+}
+
+/**
+ * The artwork is generated bright on purpose; darkening it is this one
+ * element's job, which keeps it adjustable without touching seventy files. It
+ * leans heavier at top and bottom, where the header and the composer sit over
+ * whatever the picture happens to be doing there.
+ */
+.backdrop-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.62) 0%,
+    rgba(0, 0, 0, 0.48) 35%,
+    rgba(0, 0, 0, 0.52) 65%,
+    rgba(0, 0, 0, 0.68) 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop-layer {
+    transition: none;
+  }
+}
+
+/** Page frame */
+.app {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  overflow-x: hidden;
+}
+
+.app-centred {
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+}
+
+/**
+ * Header. It sits on the bare picture rather than on a panel, so everything in
+ * it carries a shadow: the text inherits one, and the wordmark — a mask, not
+ * text — takes the same shadow through a filter. Without them a bright patch of
+ * sky swallows the line telling you where you are.
+ */
+.header {
+  flex: 0 0 auto;
+  padding: 10px 0 16px;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+}
+
+.title {
+  margin: 0;
+}
+
+/**
+ * The wordmark is painted as a mask rather than an <img>, so it takes the ink
+ * colour without a second asset. `drop-shadow` follows the masked letterforms,
+ * where `box-shadow` would outline the rectangle they are cut from.
+ */
+.logo {
+  display: block;
+  width: min(72%, 300px);
+  aspect-ratio: 1000 / 122.919;
+  margin: 0 auto;
+  background-color: var(--ink);
+  -webkit-mask: url("/got-logo.svg") center / contain no-repeat;
+  mask: url("/got-logo.svg") center / contain no-repeat;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.65));
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.location {
+  margin: 10px 0 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  text-wrap: balance;
+}
+
+/**
+ * Separates the place from the track. The rule is drawn as a border so the
+ * spacing never collapses, and it is dimmer than either label so the eye reads
+ * the two facts rather than the mark between them.
+ */
+.divider {
+  display: inline-block;
+  width: 0;
+  margin: 0 0.85em;
+  border-left: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  vertical-align: -0.1em;
+  height: 0.85em;
+  overflow: hidden;
+  text-indent: -999px;
+}
+
+/** The judged labels: one step quieter than the place they sit under */
+.labels {
+  margin: 7px 0 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-wrap: balance;
+}
+
+/**
+ * Labels change on the turn, not on a click, so they fade in rather than snap.
+ * Keyed on their own text in the component, which is what restarts the animation.
+ */
+.fading {
+  display: inline-block;
+  animation: label-fade 620ms ease-out;
+}
+
+@keyframes label-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fading {
+    animation: none;
+  }
+}
+
+.counter {
+  margin: 6px 0 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  color: var(--ink-soft);
+}
+
+/**
+ * The single chatbox: thread above, composer below. Smoked glass rather than a
+ * solid panel, so the scene stays visible under the prose and the page reads as
+ * one image with words on it. The blur is what keeps a busy patch of artwork
+ * from competing with the text it sits behind; the border is softened to match,
+ * since a full-strength accent rule outlines the panel too sharply once the
+ * panel itself is see-through.
+ */
+.chatbox {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-bottom: var(--gutter);
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius: 3px;
+  background: rgba(20, 17, 13, 0.62);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.thread {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/**
+ * Padding on a scroll container only sets where the content starts; it scrolls
+ * away, so prose ends up sliced against the border. The mask fades the top and
+ * bottom edges instead, and because the fade is shorter than the padding it
+ * covers only empty space at either end of the scroll — the first and last
+ * lines stay at full strength, while anything mid-scroll dissolves into the
+ * parchment rather than hitting the rule. It doubles as the cue for more text
+ * that the hidden scrollbar no longer gives.
+ */
+.viewport {
+  --edge-fade: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 24px 18px;
+  scroll-padding-block: 24px;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--edge-fade),
+    #000 calc(100% - var(--edge-fade)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--edge-fade),
+    #000 calc(100% - var(--edge-fade)),
+    transparent 100%
+  );
+}
+
+.prose {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.message-assistant .prose {
+  line-height: 1.75;
+}
+
+.message-user {
+  text-align: right;
+  padding-left: 12%;
+}
+
+/**
+ * The player's move sits in a bubble so it reads as an aside to the narration
+ * rather than part of it. Inline-block makes the bubble hug short actions; the
+ * squared bottom-right corner points it back at the sender.
+ *
+ * The tint is opaque and carries more accent than it did on parchment: a
+ * see-through bubble on a see-through panel is two sheets of glass and reads as
+ * neither, and a light hand with the accent over a dark ground leaves the
+ * bubble indistinguishable from the panel behind it.
+ */
+.message-user .prose {
+  display: inline-block;
+  max-width: 100%;
+  text-align: left;
+  padding: 9px 14px;
+  border-radius: 12px 12px 3px 12px;
+  background: color-mix(in srgb, var(--accent) 26%, var(--parchment-raised));
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+
+.message-failed {
+  margin: 8px 0 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+
+/** Loading */
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink-soft);
+}
+
+.loading-line {
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+/**
+ * A quill working down a line: it pivots about its nib, so the feather sweeps
+ * while the writing point stays put — the motion a pen actually makes. Slow and
+ * small on purpose; a loading mark that performs reads as a toy.
+ */
+.quill {
+  flex: 0 0 auto;
+  color: var(--accent);
+  transform-origin: 22% 82%;
+  animation: quill-write 2400ms cubic-bezier(0.37, 0, 0.63, 1) infinite;
+}
+
+@keyframes quill-write {
+  0% {
+    transform: rotate(-5deg) translate(0, 0);
+  }
+  45% {
+    transform: rotate(2deg) translate(2px, -0.5px);
+  }
+  55% {
+    transform: rotate(2.5deg) translate(2.2px, -0.5px);
+  }
+  70% {
+    transform: rotate(-1deg) translate(-1px, 0.5px);
+  }
+  100% {
+    transform: rotate(-5deg) translate(0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quill {
+    animation: none;
+  }
+}
+
+/** Composer */
+.composer {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px 12px;
+  border-top: 1px solid var(--rule);
+}
+
+.composer-input {
+  width: 100%;
+  max-width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-body), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.composer-input::placeholder {
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.composer-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.counter-over {
+  color: var(--danger);
+}
+
+/** Buttons */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--parchment);
+}
+
+.button:disabled {
+  opacity: 0.4;
+  border-color: var(--rule);
+  cursor: default;
+}
+
+/** Ending */
+.ended {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 16px;
+  text-align: center;
+  border-top: 1px solid var(--rule);
+}
+
+.ended-line {
+  margin: 0;
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
+/**
+ * Music. This row is the only chrome that sits on bare artwork rather than on
+ * the panel, so it carries a shadow of its own — `drop-shadow` rather than
+ * `text-shadow` because what needs separating from the picture is icon paths
+ * and equaliser bars, not glyphs.
+ */
+.controls {
+  order: -1;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  padding-top: 8px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.75));
+}
+
+.music {
+  display: flex;
+  align-items: center;
+}
+
+/**
+ * Three bars beside the sound toggle. They rest low and dim when nothing is
+ * audible, so the control reads as off at a glance rather than needing the icon.
+ */
+.equaliser {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+  padding: 0 2px;
+}
+
+.equaliser i {
+  width: 2px;
+  height: 25%;
+  border-radius: 1px;
+  background: var(--ink-faint);
+  transition:
+    height 240ms ease,
+    background-color 240ms ease;
+}
+
+.equaliser.is-playing i {
+  background: var(--accent);
+  animation: equaliser-bar 1100ms ease-in-out infinite;
+}
+
+.equaliser.is-playing i:nth-child(2) {
+  animation-delay: -370ms;
+}
+
+.equaliser.is-playing i:nth-child(3) {
+  animation-delay: -740ms;
+}
+
+@keyframes equaliser-bar {
+  0%,
+  100% {
+    height: 25%;
+  }
+  50% {
+    height: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .equaliser.is-playing i {
+    animation: none;
+    height: 60%;
+  }
+}
+
+/**
+ * Quiet chrome: an icon that only states itself when it needs confirming. One
+ * step up from the faintest ink, because these two buttons are read against
+ * whatever the scene happens to be doing behind them rather than against a
+ * known page colour.
+ */
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  color: var(--ink-soft);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.icon-button:hover {
+  color: var(--accent);
+}
+
+.music audio {
+  display: none;
+}
+
+.music-toggle {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 0;
+  color: var(--ink-faint);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.music-toggle:hover {
+  color: var(--accent);
+}
+
+/** Notices */
+.notice {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 0.86rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+
+/**
+ * Scrollbars are hidden, not disabled: the thread still scrolls by wheel, drag,
+ * touch and keyboard, it just does not draw a track over the parchment.
+ */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
