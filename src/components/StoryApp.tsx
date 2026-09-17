@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchStory, type Story } from "./api";
+import { fetchStory, type Story, trackFor } from "./api";
 import { loadSessionId, newSessionId } from "./session";
+import { awaitFirstScene } from "./prefetch";
 import { Chat } from "./Chat";
+import { Splash } from "./Splash";
 
 type State =
   | { readonly status: "loading" }
@@ -26,7 +28,13 @@ export const StoryApp = () => {
     const controller = new AbortController();
     setState({ status: "loading" });
     fetchStory(sessionId, controller.signal)
-      .then((story) => setState({ status: "ready", story }))
+      .then(async (story) => {
+        // The opening screen stays up until there is a scene to show, not merely
+        // one to describe: the backdrop painted and the track in cache.
+        await awaitFirstScene(story.position.background, trackFor(story.mood), controller.signal);
+        if (controller.signal.aborted) return;
+        setState({ status: "ready", story });
+      })
       .catch(() => {
         if (controller.signal.aborted) return;
         setState({ status: "failed" });
@@ -37,7 +45,7 @@ export const StoryApp = () => {
   if (state.status === "loading") {
     return (
       <main className="app app-centred">
-        <p className="notice">The tale is being unrolled…</p>
+        <Splash />
       </main>
     );
   }

@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState, type SyntheticEvent } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import { useAuiState } from "@assistant-ui/react";
-import { MOODS, type MoodId } from "./api";
+import { MOODS, type MoodId, trackFor } from "./api";
 import { readMuted, writeMuted } from "./session";
-import { assetUrl } from "@/cdn";
 
 const VOLUME = 0.25;
 /** A mood change is a scene change: long enough to feel like weather turning. */
@@ -31,7 +30,7 @@ const isMood = (value: unknown): value is MoodId =>
   typeof value === "string" && (MOODS as readonly string[]).includes(value);
 
 const trackSrc = (mood: MoodId | null): string | undefined =>
-  mood ? assetUrl(`/music/${mood}.mp3`) : undefined;
+  mood ? trackFor(mood) : undefined;
 
 const clamp = (value: number): number => Math.min(1, Math.max(0, value));
 

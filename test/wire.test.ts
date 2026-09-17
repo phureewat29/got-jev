@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import * as Beat from "@/core/Beat";
 import * as Danger from "@/core/Danger";
 import * as Mood from "@/core/Mood";
-import { BEATS, DANGERS, MOODS } from "@/components/api";
+import { BEATS, DANGERS, MOODS, trackFor } from "@/components/api";
 
 /**
  * The browser keeps its own copy of the label lists so the catalogs — lore,
@@ -23,5 +23,9 @@ describe("the client's label lists", () => {
 
   it("mirrors the danger rubric exactly", () => {
     expect([...DANGERS]).toEqual(Danger.levels.map((level) => level.id));
+  });
+
+  it("points at the same track the catalog does", () => {
+    expect(MOODS.map(trackFor)).toEqual(Mood.all.map((mood) => Mood.trackFor(mood.id)));
   });
 });

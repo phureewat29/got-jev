@@ -382,6 +382,50 @@ body {
   }
 }
 
+/** Splash */
+.splash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/**
+ * The ink running along the line the quill above is working. It shares the
+ * duration and the easing of `quill-write`, so the sweep and the stroke keep time
+ * with one another instead of drifting apart on a long wait.
+ */
+.splash-rule {
+  position: relative;
+  width: 190px;
+  height: 1px;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.splash-rule::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  transform: translateX(-100%);
+  animation: ink-run 2400ms cubic-bezier(0.37, 0, 0.63, 1) infinite;
+}
+
+@keyframes ink-run {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-rule::after {
+    animation: none;
+    transform: none;
+    opacity: 0.45;
+  }
+}
+
 /** Composer */
 .composer {
   flex: 0 0 auto;

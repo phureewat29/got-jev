@@ -2,6 +2,7 @@
  * Wire types and fetch helpers for the story API. The shapes mirror the HTTP
  * contract of the Route Handlers; nothing here imports the server core.
  */
+import { assetUrl } from "@/cdn";
 
 export const MOODS = [
   "martial", "battle", "tense", "scheming", "ominous", "mystical", "sorrowful",
@@ -9,6 +10,12 @@ export const MOODS = [
 ] as const;
 
 export type MoodId = (typeof MOODS)[number];
+
+/**
+ * The looping track a mood plays. `Mood.trackFor` says the same thing server-side;
+ * `test/wire.test.ts` holds the two together.
+ */
+export const trackFor = (mood: MoodId): string => assetUrl(`/music/${mood}.mp3`);
 
 export const BEATS = [
   "battle", "duel", "intrigue", "feast", "wedding", "trial", "journey",

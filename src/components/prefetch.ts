@@ -19,6 +19,53 @@ import { useEffect } from "react";
 
 type Manifest = { readonly scenes: readonly string[]; readonly music: readonly string[] };
 
+/**
+ * How long the opening scene may hold the door shut: long enough for one plate
+ * and one track on an ordinary connection, short enough that a CDN which is down
+ * costs a pause rather than the story.
+ */
+const firstSceneBudgetMs = 6000;
+
+const ignore = (): undefined => undefined;
+
+/** Resolves once the bitmap is decoded and ready to paint, or once it never will be. */
+const artworkReady = (url: string): Promise<void> => {
+  const image = new Image();
+  image.src = url;
+  return image.decode().then(ignore, ignore);
+};
+
+/**
+ * Resolves once the track is in the HTTP cache.
+ *
+ * Deliberately a `fetch` and not an `<audio>` element: iOS Safari will not load
+ * media before a gesture, so waiting on `canplaythrough` would wait out the whole
+ * budget there every time. The player finds the bytes in cache when it mounts.
+ */
+const trackReady = (url: string, signal: AbortSignal): Promise<void> =>
+  fetch(url, { signal, cache: "force-cache" }).then(ignore, ignore);
+
+/**
+ * Holds the opening screen until the first backdrop and the first track have
+ * arrived, so the story appears as a finished scene rather than as a bare page
+ * that fills in underneath the reader.
+ *
+ * Neither asset is allowed to be fatal and neither is allowed to be unbounded: a
+ * plate that was never generated fails, a dead CDN times out, and both cost at
+ * most the budget above.
+ */
+export const awaitFirstScene = (
+  backdrop: string,
+  track: string,
+  signal: AbortSignal,
+): Promise<void> =>
+  Promise.race([
+    Promise.all([artworkReady(backdrop), trackReady(track, signal)]).then(ignore),
+    new Promise<void>((resolve) => {
+      window.setTimeout(resolve, firstSceneBudgetMs);
+    }),
+  ]);
+
 /** Enough parallelism to keep the pipe busy, few enough to stay out of the way. */
 const LANES = 4;
 
