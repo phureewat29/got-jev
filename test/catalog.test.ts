@@ -10,6 +10,9 @@ import { regions } from "@/core/data/seed";
 const idsOf = (entries: ReadonlyArray<{ readonly id: string }>): ReadonlyArray<string> =>
   entries.map((entry) => entry.id);
 
+/** Adjacency widened out of the catalog's literal tuples, so `includes` will take an id. */
+const neighbours = (location: Location.Location): ReadonlyArray<string> => location.adjacent;
+
 describe("location catalog", () => {
   it("has unique ids and indexes every one of them", () => {
     const ids = idsOf(Location.all);
@@ -49,8 +52,23 @@ describe("location catalog", () => {
     );
     expect(mismatched).toEqual([]);
     expect(Location.childrenOf("kings-landing")).toContain("red-keep-throne-room");
-    expect(Location.childrenOf("braavos")).toEqual(["house-of-black-and-white"]);
-    expect(Location.childrenOf("winterfell")).toEqual([]);
+    expect(Location.childrenOf("braavos")).toEqual(["house-of-black-and-white", "purple-harbor"]);
+    expect(Location.childrenOf("winterfell")).toEqual([
+      "winterfell-great-hall",
+      "winterfell-godswood",
+    ]);
+    expect(Location.childrenOf("the-eyrie")).toEqual([]);
+  });
+
+  it("puts every sub-place on its parent's doorstep", () => {
+    const stranded = Location.all.flatMap((location) =>
+      Location.parentOf(location.id).pipe(
+        Option.filter((parent) => !neighbours(location).includes(parent)),
+        Option.map((parent) => `${location.id} -/- ${parent}`),
+        Option.toArray,
+      ),
+    );
+    expect(stranded).toEqual([]);
   });
 
   it("decodes catalog ids and rejects anything else", () => {
