@@ -71,19 +71,17 @@ body {
 
 /**
  * The artwork is generated bright, so the darkening happens here rather than across
- * ninety-three files. It leans heavier at top and bottom, where the header and the
- * composer sit over whatever the picture is doing.
+ * ninety-three files.
+ *
+ * Flat, not graded. It used to lean to 0.68 at top and bottom to protect the header
+ * and the composer, but a twenty-point swing over the last few percent of the height
+ * reads as two black bands rather than as shading. Those two carry their own
+ * legibility instead: the header a drop-shadow, the composer a blurred panel.
  */
 .backdrop-scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.62) 0%,
-    rgba(0, 0, 0, 0.48) 35%,
-    rgba(0, 0, 0, 0.52) 65%,
-    rgba(0, 0, 0, 0.68) 100%
-  );
+  background: rgba(0, 0, 0, 0.5);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuiState } from "@assistant-ui/react";
-import type { Position } from "./api";
+import { defaultBackdrop, type Position } from "./api";
 
 type Slot = 0 | 1;
 type Decks = {
@@ -43,27 +43,34 @@ export const SceneBackground = ({ fallback }: SceneBackgroundProps) => {
   /**
    * The swap waits on `decode()` rather than on the request, so the incoming layer
    * is already painted when it starts to rise and the fade cannot show a half-drawn
-   * frame. Artwork that has not been generated yet rejects and is shown anyway, so
-   * the empty layer fades up to the page colour rather than stranding the last scene.
+   * frame.
+   *
+   * A plate that will not load falls back to the default one. The catalog's chain —
+   * place, parent, region, default — runs on the server and only knows which stems
+   * are empty; it cannot know that a file is missing from the bucket. Without this
+   * arm that case fades up to a bare dark frame.
    */
   useEffect(() => {
     let live = true;
     const preload = new Image();
     preload.src = backdrop;
 
-    const show = (): void => {
+    const show = (image: string): void => {
       if (!live) return;
       setDecks((current) => {
-        if (current.images[current.slot] === backdrop) return current;
+        if (current.images[current.slot] === image) return current;
         const slot = other(current.slot);
         return {
           slot,
-          images: slot === 0 ? [backdrop, current.images[1]] : [current.images[0], backdrop],
+          images: slot === 0 ? [image, current.images[1]] : [current.images[0], image],
         };
       });
     };
 
-    void preload.decode().then(show, show);
+    void preload.decode().then(
+      () => show(backdrop),
+      () => show(defaultBackdrop),
+    );
     return () => {
       live = false;
     };

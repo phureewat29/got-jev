@@ -15,6 +15,13 @@ export type MoodId = (typeof MOODS)[number];
 
 export const trackFor = (mood: MoodId): string => assetUrl(`/music/${mood}.mp3`);
 
+/**
+ * The backdrop of last resort, for a plate the server resolved but the browser
+ * could not load. `Background.pathOf(defaultBackground)` is the same path
+ * server-side; `test/wire.test.ts` holds the two together.
+ */
+export const defaultBackdrop = assetUrl("/scenes/default.webp");
+
 export const BEATS = [
   "battle", "duel", "intrigue", "feast", "wedding", "trial", "journey",
   "oath", "siege", "parley", "vision", "stealth", "supernatural", "quiet",
