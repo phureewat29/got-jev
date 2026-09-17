@@ -1,5 +1,7 @@
+import { Option } from "effect";
 import { defaultBackground, regionBackground } from "@/core/data/backgrounds";
 import * as Background from "@/core/Background";
+import * as Beat from "@/core/Beat";
 import * as Location from "@/core/Location";
 import * as Mood from "@/core/Mood";
 
@@ -17,6 +19,7 @@ const manifest = {
   scenes: [
     ...new Set([
       ...Location.all.map((location) => Background.pathOf(location.background)),
+      ...Beat.all.flatMap((beat) => Option.toArray(Beat.stemOf(beat.id)).map(Background.pathOf)),
       ...Object.values(regionBackground).map(Background.pathOf),
       Background.pathOf(defaultBackground),
     ]),

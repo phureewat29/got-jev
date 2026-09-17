@@ -1,4 +1,4 @@
-import { Either, Schema } from "effect";
+import { Either, Option, Schema } from "effect";
 import { describe, expect, it } from "vitest";
 import * as Position from "@/core/Position";
 import * as Story from "@/core/Story";
@@ -10,10 +10,23 @@ const seed = Story.seed(sessionId, new Date("2026-01-01T00:00:00.000Z"));
 
 describe("views.position", () => {
   it("resolves a place id into the name the header shows and the artwork behind it", () => {
-    expect(views.position(Position.at("kings-landing"))).toEqual({
+    expect(views.position(Position.at("kings-landing"), Option.none())).toEqual({
       location: { id: "kings-landing", name: "King's Landing", region: "Crownlands" },
       background: "/scenes/kings-landing.webp",
     });
+  });
+
+  it("keeps the place in the header and gives the beat the backdrop", () => {
+    expect(views.position(Position.at("kings-landing"), Option.some("wedding"))).toEqual({
+      location: { id: "kings-landing", name: "King's Landing", region: "Crownlands" },
+      background: "/scenes/beat-wedding.webp",
+    });
+  });
+
+  it("leaves the backdrop to the place for a beat that carries no artwork", () => {
+    expect(views.position(Position.at("kings-landing"), Option.some("journey"))).toEqual(
+      views.position(Position.at("kings-landing"), Option.none()),
+    );
   });
 });
 
@@ -28,7 +41,10 @@ describe("views.story", () => {
     expect(view.messages[0].id).toBe("prologue");
     expect(view.messages[0].role).toBe("assistant");
     expect(view.messages[0].mood).toBe("calm");
-    expect(view.messages[0].position).toEqual(views.position(Position.at("castle-black")));
+    expect(view.messages[0].position).toEqual(
+      views.position(Position.at("castle-black"), Option.none()),
+    );
+    expect(view.position.background).toBe("/scenes/castle-black.webp");
   });
 
   it("follows the prologue with one pair of messages per played turn", () => {
@@ -47,7 +63,9 @@ describe("views.story", () => {
     ]);
     expect(view.messages[1].text).toBe("I ride south");
     expect(view.messages[2].mood).toBe("triumphant");
-    expect(view.messages[2].position).toEqual(views.position(Position.at("winterfell")));
+    expect(view.messages[2].position).toEqual(
+      views.position(Position.at("winterfell"), Option.some("journey")),
+    );
     expect(view.turn).toBe(1);
     expect(view.turnsRemaining).toBe(14);
   });
@@ -65,7 +83,21 @@ describe("views.turn", () => {
     expect(Schema.decodeUnknownSync(Wire.TurnView)(view)).toEqual(view);
     expect(view.mood).toBe("battle");
     expect(view.beat).toBe("battle");
-    expect(view.position).toEqual(views.position(Position.at("winterfell")));
+    expect(view.position).toEqual(
+      views.position(Position.at("winterfell"), Option.some("battle")),
+    );
+    expect(view.position.background).toBe("/scenes/beat-battle.webp");
+  });
+});
+
+describe("views.story backdrop", () => {
+  it("stands the reloaded story under the beat of its last turn", () => {
+    const played = playedTurn({
+      decision: decision({ position: Position.at("the-twins"), beat: "wedding" }),
+    });
+    const view = views.story({ ...seed, turns: [played], position: Position.at("the-twins") }, 15);
+    expect(view.position.background).toBe("/scenes/beat-wedding.webp");
+    expect(view.position.location.id).toBe("the-twins");
   });
 });
 

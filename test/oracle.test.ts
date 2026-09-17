@@ -42,12 +42,14 @@ describe("Oracle.questions", () => {
     expect([...shapes]).toEqual(["also_called,region,summary"]);
   });
 
-  it("describes beats by definition and moods by feel", () => {
+  it("describes beats and moods by what they are and one thing they look like", () => {
     expect(Object.keys(Oracle.questions.beat.criteria).length).toBe(Beat.all.length);
-    expect(Oracle.questions.beat.criteria.battle).toBe(Beat.byId.battle.definition);
+    expect(Oracle.questions.beat.criteria.battle.definition).toBe(Beat.byId.battle.definition);
+    expect(Oracle.questions.beat.criteria.battle.example).toBe(Beat.byId.battle.example);
 
     expect(Object.keys(Oracle.questions.mood.criteria).length).toBe(Mood.all.length);
     expect(Oracle.questions.mood.criteria.calm.feel).toBe(Mood.byId.calm.feel);
+    expect(Oracle.questions.mood.criteria.calm.examples).toEqual([...Mood.byId.calm.examples]);
   });
 
   it("scores danger against the whole rubric", () => {

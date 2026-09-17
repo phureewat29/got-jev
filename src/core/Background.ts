@@ -1,5 +1,6 @@
 import { Option } from "effect";
 import { defaultBackground, regionBackground } from "@/core/data/backgrounds";
+import * as Beat from "@/core/Beat";
 import * as Location from "@/core/Location";
 import type * as Position from "@/core/Position";
 import { assetUrl } from "@/cdn";
@@ -64,3 +65,27 @@ export const stemForRegion = (region: string): string =>
  */
 export const forPosition = (position: Position.Position): string =>
   pathOf(stemAt(position.location));
+
+/**
+ * The backdrop a whole scene is played against: the beat's own artwork when the
+ * beat has some, and the place otherwise.
+ *
+ * Nine of the fourteen beats are the scene rather than something that happens
+ * inside one, and those take the frame. The other five are what an ordinary turn
+ * looks like, so the country keeps it and the reader goes on seeing the country —
+ * which is what makes a battle or a wedding land as a cut rather than a move.
+ *
+ * The beat arrives as an `Option` rather than an optional argument because the
+ * opening message has no beat at all: nothing has happened yet, and that is an
+ * absence to carry rather than a default to invent.
+ */
+export const forScene = (
+  position: Position.Position,
+  beat: Option.Option<Beat.BeatId>,
+): string =>
+  beat.pipe(
+    Option.flatMap(Beat.stemOf),
+    Option.flatMap(named),
+    Option.map(pathOf),
+    Option.getOrElse(() => forPosition(position)),
+  );

@@ -11,12 +11,18 @@ import * as Story from "@/core/Story";
 
 /**
  * A `location` option as Jev sees it. Every option is the same shape, so the model
- * compares like with like instead of reading fifty-six differently written blurbs.
+ * compares like with like instead of reading seventy differently written blurbs.
  */
 type LocationOption = {
   region: string;
   summary: string;
   also_called: string[];
+};
+
+/** A `beat` option as Jev sees it: what the scene is, with the canonical one named. */
+type BeatOption = {
+  definition: string;
+  example: string;
 };
 
 /** A `mood` option as Jev sees it: what the scene feels like, with canonical examples. */
@@ -67,8 +73,10 @@ const locationCriteria: Record<Location.LocationId, LocationOption> = criteriaOf
   Location.all.map((location) => [location.id, describeLocation(location)] as const),
 );
 
-const beatCriteria: Record<Beat.BeatId, string> = criteriaOf(
-  Beat.all.map((beat) => [beat.id, beat.definition] as const),
+const beatCriteria: Record<Beat.BeatId, BeatOption> = criteriaOf(
+  Beat.all.map(
+    (beat) => [beat.id, { definition: beat.definition, example: beat.example }] as const,
+  ),
 );
 
 const moodCriteria: Record<Mood.MoodId, MoodOption> = criteriaOf(

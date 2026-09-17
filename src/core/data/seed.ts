@@ -27,7 +27,6 @@ export interface LocationSeed {
   readonly id: string;
   readonly name: string;
   readonly region: Region;
-  readonly iconic: boolean;
   /** Filename stem of this location's backdrop under `public/scenes/`. */
   readonly background: string;
   /** One line, at most 15 words: what Jev sees as the option description. */
@@ -36,7 +35,6 @@ export interface LocationSeed {
   readonly description: string;
   /** Aliases a player or the prose might use ("the capital"); empty for most. */
   readonly also_called: readonly string[];
-  readonly tags: readonly string[];
   /** Ids of plausible next places; context for the narrator, never a constraint. */
   readonly adjacent: readonly string[];
   /** Parent location id for city sub-places (the Red Keep sits within King's Landing). */
@@ -49,6 +47,12 @@ export interface BeatSeed {
   /** What Jev sees as the option description. */
   readonly definition: string;
   readonly example: string;
+  /**
+   * Filename stem of this beat's backdrop under `public/scenes/`, for the beats
+   * that are the scene rather than something that happens inside one. The rest
+   * leave the frame to the place.
+   */
+  readonly background?: string;
 }
 
 export interface MoodSeed {
