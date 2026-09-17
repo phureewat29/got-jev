@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cinzel, EB_Garamond } from "next/font/google";
 import "./globals.css";
+import { assetUrl } from "@/cdn";
 
 const display = Cinzel({
   subsets: ["latin"],
@@ -29,9 +30,9 @@ export const metadata: Metadata = {
     siteName: TITLE,
     title: TITLE,
     description: DESCRIPTION,
-    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: TITLE }],
+    images: [{ url: assetUrl("/og.jpg"), width: 1200, height: 630, alt: TITLE }],
   },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: ["/og.jpg"] },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: [assetUrl("/og.jpg")] },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

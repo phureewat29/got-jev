@@ -1,6 +1,25 @@
-# Game of Thrones x Jev
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/logo-dark.png">
+    <img src=".github/logo.png" alt="Game of Thrones x Jev" width="460">
+  </picture>
+</p>
 
-A Game of Thrones roleplay, turn base where you play Jon Snow.
+<p align="center">
+  <strong>Typed judgment, turn by turn</strong>
+</p>
+
+<p align="center">
+  A Game of Thrones roleplay where you play Jon Snow. A story model writes each scene;
+  TypeSafe's Jev reads it back and decides where you now stand, what kind of scene it was,
+  how much danger you are in, and what should play under it.
+</p>
+
+<p align="center">
+  <a href="https://jev.phureewat.com"><strong>jev.phureewat.com</strong></a>
+</p>
+
+<br />
 
 Each turn, a story model writes the next scene. Then [TypeSafe](https://docs.typesafe.ai)'s
 **Jev** reads that scene and answers multiple questions: where Jon now stands,
