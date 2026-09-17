@@ -66,20 +66,16 @@ pnpm dev                       # http://localhost:3000
 | Variable | Default | Notes |
 | --- | --- | --- |
 | `TYPESAFE_API_KEY` | — | Required. From [typesafe.ai](https://typesafe.ai) |
-| `TYPESAFE_MODEL` | `jev-latest` | Pin a version if you tune thresholds against one |
 | `OPENROUTER_API_KEY` | — | Required. From [openrouter.ai](https://openrouter.ai) |
+| `REDIS_URL` | — | Required. The Docker Redis above, or a `rediss://` endpoint in a deployment |
+| `TYPESAFE_MODEL` | `jev-latest` | Pin a version if you tune thresholds against one |
 | `OPENROUTER_MODEL` | `openai/gpt-5.6-luna` | Any OpenRouter chat model |
-| `REDIS_URL` | `redis://127.0.0.1:6379` | Local Redis, over TCP |
-| `UPSTASH_REDIS_REST_URL` | — | Set it and the store switches to Upstash over HTTPS |
-| `UPSTASH_REDIS_REST_TOKEN` | — | Required once the URL is set |
 | `STORY_TTL_DAYS` | `7` | An untouched story expires on its own |
 | `MAX_TURNS` | `15` | Turn 15 is narrated as a closing chapter |
+| `MAX_TURNS_PER_MINUTE` | `10` | Per caller |
+| `MAX_TURNS_PER_IP_PER_DAY` | `60` | Per caller. A new tale mints a new session, so only the address is durable |
 | `MAX_TURNS_PER_DAY` | `500` | Process-wide spend cap |
-
-A deployment runs on a read-only filesystem and gets a fresh instance per request, so
-production talks to Upstash over REST and holds no socket. Add the Upstash integration
-in Vercel — it writes both `UPSTASH_REDIS_REST_*` names into the project — and leave
-`REDIS_URL` unset there.
+| `NEXT_PUBLIC_CDN_URL` | — | Optional. Serve music and artwork from a CDN; unset uses `public/` |
 
 ```bash
 pnpm test        # pure functions + the engine on canned layers, no network
