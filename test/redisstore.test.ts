@@ -92,6 +92,26 @@ describe("StoryStore over Redis", () => {
     expect(keys).toEqual([`${keyPrefix}${sessionId}`]);
   });
 
+  it("reads a story written under an older shape as no story at all", async () => {
+    // A real document from before the travelling position and the heading question
+    // were removed: it decodes against nothing this build knows how to read.
+    const stale = JSON.stringify({
+      sessionId,
+      position: { _tag: "OnRoad", from: "castle-black", toward: "The North", since: 1 },
+      mood: "calm",
+      turns: [],
+      ended: false,
+      updatedAt: "2026-01-01T00:00:00.000Z",
+    });
+
+    const loaded = await withRedis(
+      () => Effect.flatMap(StoryStore, (store) => store.load(sessionId)),
+      HashMap.make([`${keyPrefix}${sessionId}`, stale]),
+    );
+
+    expect(Option.isNone(loaded)).toBe(true);
+  });
+
   it("reports a dead Redis as a corrupt story rather than a defect", async () => {
     const failure = await Effect.runPromise(
       Effect.flip(
