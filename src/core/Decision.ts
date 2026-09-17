@@ -1,17 +1,17 @@
 /**
- * Turns one Jev judgment into the next state.
+ * Turns one turn's answers into the next state.
  *
- * A single System One request asks five independent questions about one shared
- * state and gets back three kinds of typed answer: a `choice` for location, beat
- * and mood, a `score` for danger, a `noul` for the fiction check.
+ * `Oracle` asks Jev; this reads what came back. The answers arrive as
+ * `Question.StoredAnswers`, the persisted widening of the SDK's `ChoiceResponse`,
+ * `ScoreResponse` and `NoulResponse`, so nothing here imports the SDK or makes a
+ * request.
  *
- * A `choice` carries more than the label it picked. Alongside `choice` it returns
- * `confidence` and `probabilities`, a distribution over every option the question
- * was given — seventy, for location. Reading that distribution instead of the
- * label is what the fold below is for.
+ * The shape that matters: a choice answer carries `probabilities` over every
+ * option the question was given, not just the label it settled on. `placed` reads
+ * that distribution, and the fold above it is why.
  *
- * Everything here is pure and reads the answers as they are stored rather than as
- * the SDK returns them, so a saved turn re-resolves without asking Jev again.
+ * Pure, and a function of the stored answers alone, so a saved turn re-resolves to
+ * the decision it was saved with.
  */
 import { Option, Schema } from "effect";
 import * as Beat from "@/core/Beat";
