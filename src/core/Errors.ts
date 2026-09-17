@@ -1,7 +1,6 @@
 import { Schema } from "effect";
 import { StoredAnswers } from "@/core/Question";
 
-/** Flatten an unknown thrown value into one line, for an error message. */
 export const describeCause = (cause: unknown): string =>
   cause instanceof Error ? `${cause.name}: ${cause.message}` : String(cause);
 
@@ -36,7 +35,7 @@ export class StoryEnded extends Schema.TaggedError<StoryEnded>()("StoryEnded", {
   turns: Schema.Int,
 }) {}
 
-/** The client asked for a turn the story is not on — two tabs, or a reload mid-turn. */
+/** The client asked for a turn the story is not on, from two tabs or a reload mid-turn. */
 export class TurnConflict extends Schema.TaggedError<TurnConflict>()("TurnConflict", {
   expected: Schema.Int,
   received: Schema.Int,

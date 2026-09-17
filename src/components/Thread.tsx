@@ -35,7 +35,6 @@ const AssistantMessage = () => (
 const renderMessage = ({ message }: { message: MessageState }) =>
   message.role === "user" ? <UserMessage /> : <AssistantMessage />;
 
-/** The page of the book: plain text, no avatars, no actions, no branches. */
 export const Thread = () => (
   <ThreadPrimitive.Root className="thread">
     <ThreadPrimitive.Viewport className="viewport">

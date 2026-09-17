@@ -1,6 +1,8 @@
 /**
- * Wire types and fetch helpers for the story API. The shapes mirror the HTTP
- * contract of the Route Handlers; nothing here imports the server core.
+ * Wire types and fetch helpers for the story API. Nothing here imports the server
+ * core, so the label lists below are copies rather than the catalogs themselves,
+ * which keeps the lore and the grading criteria out of the bundle.
+ * `test/wire.test.ts` holds the copies and the catalogs in step.
  */
 import { assetUrl } from "@/cdn";
 
@@ -11,10 +13,6 @@ export const MOODS = [
 
 export type MoodId = (typeof MOODS)[number];
 
-/**
- * The looping track a mood plays. `Mood.trackFor` says the same thing server-side;
- * `test/wire.test.ts` holds the two together.
- */
 export const trackFor = (mood: MoodId): string => assetUrl(`/music/${mood}.mp3`);
 
 export const BEATS = [
@@ -34,10 +32,7 @@ export type LocationRef = {
   readonly region: string;
 };
 
-/**
- * The backdrop travels with the position, already resolved to a public path by
- * the server, so the browser never carries the location catalog to work it out.
- */
+/** `background` arrives already resolved to a public path by the server. */
 export type Position = {
   readonly location: LocationRef;
   readonly background: string;
@@ -112,9 +107,8 @@ export const fetchStory = async (sessionId: string, signal: AbortSignal): Promis
 };
 
 /**
- * Plays one turn. Transport and status failures come back as an outcome so the
- * adapter can branch on them; an abort is rethrown so the runtime can treat it
- * as a cancellation rather than an error.
+ * Transport and status failures come back as an outcome so the adapter can branch
+ * on them. An abort is rethrown instead, so the runtime treats it as a cancellation.
  */
 export const postTurn = async (
   sessionId: string,

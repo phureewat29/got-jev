@@ -11,12 +11,11 @@ import * as Location from "@/core/Location";
 import { QuestionModel, type QuestionModelService } from "@/core/QuestionModel";
 
 /**
- * Exact answers for one narration, keyed by question name, in the shape the SDK
- * returns them. Anything a fixture leaves out is answered by the keyword rules.
+ * Exact answers for one narration, keyed by question name, in the shape the SDK returns
+ * them. Anything a fixture leaves out is answered by the keyword rules.
  */
 export type Fixtures = Record<string, Record<string, unknown>>;
 
-/** The scene the rules read: the words of the turn, and where the story stood. */
 interface Scene {
   readonly text: string;
   readonly narration: string;
@@ -60,7 +59,6 @@ const mentions = (text: string, label: string): boolean => {
   return words.every((word) => text.includes(word));
 };
 
-/** Options that stand in when nothing in the prose picks a side. */
 const fallbacks: ReadonlyArray<string> = ["journey", "curious"];
 
 const fallbackFor = (labels: ReadonlyArray<string>, previous: string | undefined): string => {
@@ -112,10 +110,10 @@ const answerFor = (question: Question, scene: Scene): unknown => {
 };
 
 /**
- * Jev answered from keyword rules over the scene, so the whole engine — including
- * the verify-and-retry path — runs without a network. The result is assembled
- * dynamically and asserted once here; the rules answer whatever questions they are
- * handed, which is why `Oracle.questions` can change without touching this file.
+ * Jev answered from keyword rules over the scene, so the whole engine runs without a
+ * network. The result is assembled dynamically and asserted once here, so the rules
+ * answer whatever questions they are handed and `Oracle.questions` can change without
+ * touching this file.
  */
 export const make = (fixtures: Fixtures = {}): QuestionModelService => ({
   evaluate: <const Q extends Questions>(state: EntryType, questions: Q) =>
@@ -133,7 +131,6 @@ export const make = (fixtures: Fixtures = {}): QuestionModelService => ({
     }),
 });
 
-/** Jev answered from keyword rules alone. */
 export const layer: Layer.Layer<QuestionModel> = Layer.succeed(QuestionModel, make());
 
 /** Jev answered from exact fixtures, falling back to the keyword rules per question. */

@@ -12,9 +12,8 @@ import {
 type HeaderProps = {
   readonly turn: number;
   readonly total: number;
-  /** Where the story opened, used until Jev has labelled a scene. */
+  /** Both fallbacks stand in until Jev has labelled a scene. */
   readonly positionFallback: Position;
-  /** The mood the story opened on, used until Jev has labelled a scene. */
   readonly moodFallback: MoodId;
 };
 
@@ -32,10 +31,7 @@ const isDanger = oneOf<DangerId>(DANGERS);
 
 const titleCase = (value: string): string => value.charAt(0).toUpperCase() + value.slice(1);
 
-/**
- * Re-keyed on its own text, so React replaces the node whenever a label changes
- * and the CSS fade runs again. Without the key the text would swap in place.
- */
+/** Keyed on its own text, so React replaces the node and the CSS fade runs again. */
 const Fading = ({ text }: { readonly text: string }) => (
   <span key={text} className="fading">
     {text}
@@ -43,11 +39,8 @@ const Fading = ({ text }: { readonly text: string }) => (
 );
 
 /**
- * Title, where Jon stands, and the labels the scene was judged under.
- *
- * Place, mood, beat and danger all come from the last message carrying each one,
- * which is the same judgment that steers the music and the next prompt — so the
- * header can never disagree with what the story is doing.
+ * Place, mood, beat and danger each come from the last message carrying that label,
+ * which is the same judgment that steers the music and the next prompt.
  */
 export const Header = ({ turn, total, positionFallback, moodFallback }: HeaderProps) => {
   const messages = useAuiState((state) => state.thread.messages);

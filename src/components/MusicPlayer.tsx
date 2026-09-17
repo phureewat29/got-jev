@@ -5,9 +5,9 @@ import { MOODS, type MoodId, trackFor } from "./api";
 import { readMuted, writeMuted } from "./session";
 
 const VOLUME = 0.25;
-/** A mood change is a scene change: long enough to feel like weather turning. */
+/** Slow enough that a mood change reads as the scene turning. */
 const CROSSFADE_MS = 1800;
-/** Silencing the bards is a command, so it answers quickly. */
+/** Muting is a command, so it answers at once. */
 const MUTE_MS = 350;
 
 type Slot = 0 | 1;
@@ -35,12 +35,10 @@ const trackSrc = (mood: MoodId | null): string | undefined =>
 const clamp = (value: number): number => Math.min(1, Math.max(0, value));
 
 /**
- * Ramps one element's volume on animation frames and returns a cancel.
- *
- * The curve is equal power — `sin` rising against `cos` falling — because two
- * tracks crossfading on straight lines sum to a dip in the middle, which is
- * heard as the music sagging as it changes. Squared, these two sum to one, so
- * the loudness holds steady across the handover.
+ * The curve is equal power, `sin` rising against `cos` falling. Two tracks
+ * crossfading on straight lines sum to a dip in the middle, heard as the music
+ * sagging as it changes; squared, `sin` and `cos` sum to one, so the loudness holds
+ * steady across the handover.
  */
 const ramp = (element: HTMLAudioElement, target: number, duration: number): (() => void) => {
   const from = element.volume;
@@ -67,9 +65,8 @@ const ramp = (element: HTMLAudioElement, target: number, duration: number): (() 
 };
 
 /**
- * Starts a silent track and ramps it up only once playback has actually begun,
- * so a track still buffering does not spend half its fade inaudible and then
- * arrive already half loud.
+ * Ramps up only once playback has actually begun, so a track still buffering does
+ * not spend half its fade inaudible and then arrive already half loud.
  */
 const rollIn = (element: HTMLAudioElement, target: number): (() => void) => {
   if (!element.paused) return ramp(element, target, CROSSFADE_MS);
@@ -96,11 +93,6 @@ const hush = (event: SyntheticEvent<HTMLAudioElement>): void => {
   event.currentTarget.pause();
 };
 
-/**
- * Three bars that dance while sound is audible and rest flat when it is not, so
- * the indicator reports what is actually reaching the listener rather than what
- * mood the story happens to be in.
- */
 const Equaliser = ({ playing }: { readonly playing: boolean }) => (
   <span className={playing ? "equaliser is-playing" : "equaliser"} aria-hidden="true">
     <i />
@@ -109,10 +101,7 @@ const Equaliser = ({ playing }: { readonly playing: boolean }) => (
   </span>
 );
 
-/**
- * Two looping elements take turns holding the current mood, so a change is a
- * crossfade rather than a cut.
- */
+/** Two looping elements take turns holding the current mood, so a change is a crossfade. */
 export const MusicPlayer = ({ fallback, started }: MusicPlayerProps) => {
   const mood = useAuiState((state) => {
     const labelled = state.thread.messages.findLast((message) =>
@@ -130,21 +119,16 @@ export const MusicPlayer = ({ fallback, started }: MusicPlayerProps) => {
   const [audible, setAudible] = useState(false);
   const [deck, setDeck] = useState<Deck>({ slot: 0, tracks: [mood, null] });
 
-  // The bards play from the opening scene; only silencing them stops it.
   const playing = !muted;
 
   useEffect(() => setMuted(readMuted()), []);
 
   /**
    * A page may not start audio before the reader has touched it. The press that
-   * dismisses the splash is that touch, so the first attempt on mount normally
-   * succeeds — but a track still arriving, or a browser in a stricter mood, can
-   * refuse it anyway.
-   *
-   * So every interaction retries until something is actually audible, rather than
-   * the one retry a `once` listener would give. The listeners come off as soon as
-   * sound is reaching the room, and while the bards are deliberately silenced
-   * there is nothing to retry.
+   * dismisses the splash is normally that touch, but a track still arriving, or a
+   * stricter browser, can refuse the first attempt anyway. So every later gesture
+   * retries until something is audible, rather than the one retry a `once` listener
+   * would give.
    */
   useEffect(() => {
     if (audible || muted) return;
@@ -153,7 +137,6 @@ export const MusicPlayer = ({ fallback, started }: MusicPlayerProps) => {
     return () => GESTURES.forEach((name) => window.removeEventListener(name, wake));
   }, [audible, muted]);
 
-  /** What is really coming out of the speakers, which is what the bars report. */
   const refreshAudible = () =>
     setAudible(
       (first.current !== null && !first.current.paused) ||

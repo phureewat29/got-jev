@@ -22,10 +22,8 @@ const build = (): AppRuntime => {
 const cache = globalThis as typeof globalThis & RuntimeCache;
 
 /**
- * One runtime for the whole process, cached on `globalThis`.
- *
- * Next reloads server modules on every edit in development; without the cache each
- * reload would build a fresh set of layers — a new Jev client, a new rate-limit window,
- * a new daily counter — and leak the old ones.
+ * One runtime for the whole process, cached on `globalThis`. Next reloads server modules
+ * on every edit in development; without the cache each reload would build a fresh Jev
+ * client, rate-limit window and daily counter, and leak the old ones.
  */
 export const runtime: AppRuntime = (cache[cacheKey] ??= build());

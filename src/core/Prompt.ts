@@ -4,7 +4,6 @@ import * as Location from "@/core/Location";
 import type { Message } from "@/core/Narrator";
 import * as Story from "@/core/Story";
 
-/** How the caller steers one build: the closing scene, and the retry after a fiction slip. */
 export interface BuildOptions {
   readonly isFinalTurn: boolean;
   /** Set on the regeneration after `inFiction` failed, to tighten the voice rules. */
@@ -99,11 +98,7 @@ const systemPrompt = (state: Story.StoryState, options: BuildOptions): string =>
 };
 
 /**
- * The narrator's messages for one turn.
- *
- * Pure, and a function of Jev's labels rather than of last turn's prose: the position's
- * lore and the previous beat, mood and danger all come out of the `StoryState` that
- * `Decision.resolve` wrote.
+ * Built from Jev's labels in `StoryState` rather than from last turn's prose.
  *
  * The player's action appears only in the user message, delimited, so nothing a player
  * types can ever be read as part of the rules.

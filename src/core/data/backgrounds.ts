@@ -1,9 +1,3 @@
-/**
- * Backdrop filenames for the location and region catalogs.
- * `regionBackground` and `defaultBackground` back-fill `LocationSeed.background`
- * when no location-specific image applies.
- */
-
 import type { Region } from "./seed";
 
 /** Backdrop for a whole country, used when a place in it has no picture of its own. */

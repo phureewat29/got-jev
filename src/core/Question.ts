@@ -4,9 +4,8 @@ import { Schema } from "effect";
 export { choice, noul, score } from "@typesafe-ai/sdk";
 
 /**
- * A stored choice answer. `probabilities` is deliberately string-keyed: Jev omits
- * options that round away, so a literal-keyed record would fail to decode the very
- * files this schema exists to read back.
+ * `probabilities` is deliberately string-keyed: Jev omits options that round away, so a
+ * literal-keyed record would fail to decode the files this schema exists to read back.
  */
 export const StoredChoice = Schema.Struct({
   choice: Schema.String,
@@ -21,16 +20,15 @@ export const StoredScore = Schema.Struct({
   probabilities: Schema.Record({ key: Schema.String, value: Schema.Number }),
 });
 
-/** A stored yes/no answer. */
+/** A stored yes/no answer; `noul` is the probability of yes. */
 export const StoredNoul = Schema.Struct({
   noul: Schema.Number,
 });
 
 /**
- * Jev's answers as they are written to disk. The keys mirror `Oracle.questions`;
- * the values are looser than the SDK's literal types so that saved turns stay
- * readable when the catalogs move on. `Decision.resolve` reads this shape and
- * nothing else, which is what makes re-resolving an old turn possible.
+ * Jev's answers as they are written to disk. The keys mirror `Oracle.questions`; the
+ * values are looser than the SDK's literal types so that saved turns stay readable when
+ * the catalogs move on.
  */
 export const StoredAnswers = Schema.Struct({
   location: StoredChoice,
@@ -40,13 +38,9 @@ export const StoredAnswers = Schema.Struct({
   inFiction: StoredNoul,
 });
 
-/** Jev's answers as they are written to disk. */
 export type StoredAnswers = typeof StoredAnswers.Type;
 
-/**
- * The structural shape `toStored` accepts. `Oracle.Answers` satisfies it while
- * keeping its literal `choice` unions at the call site.
- */
+/** The structural shape `toStored` accepts, so `Oracle.Answers` keeps its literal unions. */
 export interface AnswersLike {
   readonly location: ChoiceResponse;
   readonly beat: ChoiceResponse;

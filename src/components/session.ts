@@ -1,7 +1,4 @@
-/**
- * Browser-local identity. The session id names a storyline on the server; the
- * mute flag is a personal preference. Both tolerate a blocked localStorage.
- */
+/** Browser-local identity and preference, both tolerant of a blocked localStorage. */
 
 const SESSION_KEY = "story-effect:session";
 const MUTED_KEY = "story-effect:muted";

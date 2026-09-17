@@ -8,7 +8,6 @@ import { StoredAnswers } from "@/core/Question";
 /** A browser-generated session id; one story per id. */
 export const SessionId = Schema.UUID.pipe(Schema.brand("SessionId"));
 
-/** A browser-generated session id. */
 export type SessionId = typeof SessionId.Type;
 
 /** One played turn: what the player did, what the narrator wrote, and what Jev made of it. */
@@ -20,7 +19,6 @@ export const Turn = Schema.Struct({
   at: Schema.Date,
 });
 
-/** One played turn. */
 export type Turn = typeof Turn.Type;
 
 /** A whole storyline, as it is written to the store. */
@@ -33,13 +31,9 @@ export const StoryState = Schema.Struct({
   updatedAt: Schema.Date,
 });
 
-/** A whole storyline. */
 export type StoryState = typeof StoryState.Type;
 
-/**
- * The opening state: Castle Black at dusk, nothing played yet. A fresh `GET` hands
- * this back without writing it; the first `POST` is what persists a story.
- */
+/** The opening state: Castle Black, nothing played yet. */
 export const seed = (sessionId: SessionId, at: Date): StoryState => ({
   sessionId,
   position: Position.at(openingLocationId),
@@ -52,19 +46,15 @@ export const seed = (sessionId: SessionId, at: Date): StoryState => ({
 /** The turn about to be played, counting from one. */
 export const nextTurnIndex = (state: StoryState): number => state.turns.length + 1;
 
-/** Turns left before the story closes. */
 export const turnsRemaining = (state: StoryState, maxTurns: number): number =>
   Math.max(0, maxTurns - state.turns.length);
 
-/** The turn most recently played. */
 const lastTurn = (state: StoryState): Option.Option<Turn> =>
   Option.fromNullable(state.turns.at(-1));
 
-/** What Jev made of the previous scene, for continuity in the next prompt. */
 export const lastDecision = (state: StoryState): Option.Option<Decision> =>
   Option.map(lastTurn(state), (turn) => turn.decision);
 
-/** The last few turns Jev is shown as story context. */
 export const recentTurns = (state: StoryState, count: number): ReadonlyArray<Turn> =>
   state.turns.slice(-count);
 

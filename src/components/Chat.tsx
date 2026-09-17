@@ -52,9 +52,8 @@ const toThreadMessage = (message: StoryMessage): ThreadMessageLike => {
 };
 
 /**
- * One mounted tale. The known turn count lives in a ref so the adapter always
- * posts the number the last response gave it, while the header reads the same
- * count from state.
+ * The turn count lives in a ref so the adapter always posts the number the last
+ * response gave it, and in state so the header re-renders.
  */
 export const Chat = ({ story, onNewTale }: ChatProps) => {
   const [progress, setProgress] = useState<Progress>(

@@ -10,7 +10,6 @@ import { Rules } from "@/core/Rules";
 import * as Story from "@/core/Story";
 import { StoryStore } from "@/core/StoryStore";
 
-/** What one played turn hands back to the edge. */
 export interface TurnResult {
   readonly decision: Decision.Decision;
   readonly text: string;
@@ -22,10 +21,7 @@ export interface TurnResult {
 
 const now = Effect.map(Clock.currentTimeMillis, (millis) => new Date(millis));
 
-/**
- * The story as it stands, or the unsaved Castle Black seed. Reading never writes:
- * a session exists on disk only once its first turn is played.
- */
+/** Reading never writes: a session exists on disk only once its first turn is played. */
 export const openStory = Effect.fn("StoryEngine.openStory")(function* (sessionId: Story.SessionId) {
   const store = yield* StoryStore;
   const saved = yield* store.load(sessionId);
@@ -34,12 +30,10 @@ export const openStory = Effect.fn("StoryEngine.openStory")(function* (sessionId
 });
 
 /**
- * One turn of the exhibit: guard, narrate, judge, verify, resolve, save.
- *
- * The narrate-and-judge pair is retried once when Jev's `inFiction` says the prose
- * left the world, with a stricter reminder in the prompt. A second slip is accepted
- * rather than failing the turn — the rejected attempt rides on `OutOfFiction`, so
- * the recovery has the prose and the answers it needs.
+ * The narrate-and-judge pair is retried once when Jev's `inFiction` says the prose left
+ * the world, with a stricter reminder in the prompt. A second slip is accepted rather
+ * than failing the turn, and the rejected attempt rides on `OutOfFiction` so the
+ * recovery has the prose and the answers it needs.
  */
 export const playTurn = Effect.fn("StoryEngine.playTurn")(
   function* (sessionId: Story.SessionId, turn: number, action: string) {

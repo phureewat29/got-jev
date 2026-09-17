@@ -3,9 +3,8 @@ export const openingLocationId = "castle-black" as const;
 export const openingMoodId = "calm" as const;
 
 /**
- * The opening is deliberately unspent: an ordinary morning, no duty pressing, the
- * roads named but none of them chosen. It states where Jon stands and stops, so the
- * first thing that happens in the story is whatever the player decides.
+ * The opening is deliberately unspent: no duty pressing and no road chosen, so the first
+ * thing that happens in the story is whatever the player decides.
  */
 export const prologue = {
   jon: "I am Jon Snow, Lord Eddard Stark's bastard son. He brought me to Winterfell as a babe and raised me alongside his trueborn children. I never knew my mother, not even her name — my father would never speak of her.\n\nI took the black and rode north to the Wall, where Lord Commander Mormont armed me with his own blade, Longclaw, forged of Valyrian steel. Ghost, my direwolf, came out of the snow and has followed me since.",

@@ -93,8 +93,10 @@ describe("StoryStore over Redis", () => {
   });
 
   it("reads a story written under an older shape as no story at all", async () => {
-    // A real document from before the travelling position and the heading question
-    // were removed: it decodes against nothing this build knows how to read.
+    /**
+     * A real document from before the travelling position and the heading question
+     * were removed: it decodes against nothing this build knows how to read.
+     */
     const stale = JSON.stringify({
       sessionId,
       position: { _tag: "OnRoad", from: "castle-black", toward: "The North", since: 1 },

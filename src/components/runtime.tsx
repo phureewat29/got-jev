@@ -24,9 +24,8 @@ const lastUserAction = (messages: readonly ThreadMessage[]): string => {
 };
 
 /**
- * Turns the composer's last user message into one POST. A turn conflict
- * refreshes the client's idea of the story before failing, so the next attempt
- * carries the right turn number.
+ * A turn conflict refreshes the client's idea of the story before failing, so the
+ * next attempt carries the right turn number.
  */
 export const createStoryAdapter = ({
   sessionId,

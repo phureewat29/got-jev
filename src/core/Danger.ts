@@ -1,9 +1,6 @@
 import { Schema } from "effect";
 
-/**
- * The danger rubric, ordered from zero upward. The descriptions are what Jev
- * scores against; the ids are what a decision records.
- */
+/** The danger rubric, ordered from zero upward: an entry's index is the score Jev returns. */
 export const levels = [
   {
     id: "safe",
@@ -37,22 +34,19 @@ export const criteria = [
   levels[4].description,
 ] as const;
 
-/** The literal union of danger level ids. */
 export type DangerId = (typeof levels)[number]["id"];
 
 const ids: ReadonlyArray<string> = levels.map((level) => level.id);
 
-/** Whether a value names a danger level. */
 export const isDangerId = (value: unknown): value is DangerId =>
   typeof value === "string" && ids.includes(value);
 
-/** A danger level id. */
 export const DangerId = Schema.String.pipe(Schema.filter(isDangerId, { identifier: "DangerId" }));
 
 /** The level a scene with no danger reading falls back to. */
 export const fallback: DangerId = "safe";
 
-/** Round Jev's expected score to the nearest rubric level, clamped to the rubric. */
+/** Jev's score is an expectation rather than an index, so it is rounded and clamped. */
 export const fromScore = (score: number): DangerId => {
   if (!Number.isFinite(score)) return fallback;
   const index = Math.min(levels.length - 1, Math.max(0, Math.round(score)));

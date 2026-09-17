@@ -4,16 +4,15 @@ import { Config, Duration, Effect, Option } from "effect";
 import { describeCause } from "@/core/Errors";
 
 /**
- * The five commands a story store needs from Redis, so the store itself never
- * depends on a particular client. `RedisStore` speaks the wire protocol over TCP;
- * everything above this interface — namespacing, expiry, encoding, error mapping —
- * is shared.
+ * The five commands a story store needs from Redis, so nothing above this interface
+ * depends on a particular client. Namespacing, expiry, encoding and error mapping are
+ * shared here rather than written per client.
  */
 export interface RedisOps {
   readonly get: (key: string) => Effect.Effect<string | null, PlatformError>;
   readonly set: (key: string, value: string) => Effect.Effect<void, PlatformError>;
   readonly remove: (key: string) => Effect.Effect<void, PlatformError>;
-  /** This app's keys, already narrowed to `keyPrefix` — never the whole database. */
+  /** This app's keys, already narrowed to `keyPrefix`, never the whole database. */
   readonly keys: () => Effect.Effect<ReadonlyArray<string>, PlatformError>;
   readonly removeAll: (keys: ReadonlyArray<string>) => Effect.Effect<void, PlatformError>;
 }
@@ -52,16 +51,15 @@ const timedOut = (method: string, deadline: Duration.Duration): PlatformError =>
     description: `redis ${method} did not answer within ${Duration.format(deadline)}`,
   });
 
-/** One Redis round-trip: a promise in, a `PlatformError` and a deadline out. */
 export interface RedisCall {
   <A>(method: string, run: () => Promise<A>): Effect.Effect<A, PlatformError>;
 }
 
 /**
- * Both clients are promise-based and neither takes an `AbortSignal`, so the deadline is
- * enforced here: a stalled call fails the turn rather than holding a serverless
- * invocation open until the platform kills it. `explain` is a client's chance to swap a
- * generic rejection for the reason it really failed.
+ * The client is promise-based and takes no `AbortSignal`, so the deadline is enforced
+ * here: a stalled call fails the turn rather than holding a serverless invocation open
+ * until the platform kills it. `explain` is a client's chance to swap a generic
+ * rejection for the reason it really failed.
  */
 export const caller = (options: {
   readonly deadline: Duration.Duration;
@@ -78,9 +76,8 @@ export const caller = (options: {
 };
 
 /**
- * A `KeyValueStore` over `RedisOps`. `KeyValueStoryStore` layers the Schema on top of
- * this; all that is added here is the namespace and the two whole-store operations
- * `makeStringOnly` asks for, both scoped to the keys this app owns.
+ * A `KeyValueStore` over `RedisOps`. All this adds is the namespace and the two
+ * whole-store operations `makeStringOnly` asks for, both scoped to this app's keys.
  */
 export const fromOps = (ops: RedisOps): KeyValueStore.KeyValueStore =>
   KeyValueStore.makeStringOnly({

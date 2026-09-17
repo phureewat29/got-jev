@@ -15,32 +15,23 @@ export const TurnRequest = Schema.Struct({
   turn: Schema.Int.pipe(Schema.nonNegative()),
 });
 
-/** One turn as the client sends it. */
 export type TurnRequest = typeof TurnRequest.Type;
 
-/**
- * A place on the wire. The domain stores ids; the header needs a name, so the id is
- * resolved here rather than in the browser.
- */
+/** The domain stores ids; the header needs the name, so the id is resolved server-side. */
 export const Place = Schema.Struct({
   id: Location.LocationId,
   name: Schema.String,
   region: Location.Region,
 });
 
-/** A place on the wire. */
 export type Place = typeof Place.Type;
 
-/**
- * Where the story stands, on the wire. `background` is the public path of the
- * scene's artwork, resolved here so the browser never carries the catalog.
- */
+/** `background` is the artwork's public path, so the browser never carries the catalog. */
 export const Position = Schema.Struct({
   location: Place,
   background: Schema.String,
 });
 
-/** Where the story stands, on the wire. */
 export type Position = typeof Position.Type;
 
 /** One message in the thread, with the labels that message was written under. */
@@ -54,7 +45,6 @@ export const Message = Schema.Struct({
   danger: Schema.optional(Danger.DangerId),
 });
 
-/** One message in the thread. */
 export type Message = typeof Message.Type;
 
 /** The whole story, as `GET /api/story/[id]` returns it. */
@@ -69,7 +59,6 @@ export const StoryView = Schema.Struct({
   messages: Schema.Array(Message),
 });
 
-/** The whole story, as `GET /api/story/[id]` returns it. */
 export type StoryView = typeof StoryView.Type;
 
 /** One played turn, as `POST /api/story/[id]/turn` returns it. */
@@ -85,7 +74,6 @@ export const TurnView = Schema.Struct({
   ended: Schema.Boolean,
 });
 
-/** One played turn, as `POST /api/story/[id]/turn` returns it. */
 export type TurnView = typeof TurnView.Type;
 
 const firstIssue = (error: ParseResult.ParseError): string => {
@@ -104,8 +92,6 @@ const decode = <A, I>(schema: Schema.Schema<A, I>) => {
     );
 };
 
-/** Read the `[id]` path segment as a session id, or fail the request at the edge. */
 export const decodeSessionId = decode(SessionId);
 
-/** Read the `POST` body, or fail the request at the edge. */
 export const decodeTurnRequest = decode(TurnRequest);

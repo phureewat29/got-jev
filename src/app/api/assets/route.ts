@@ -8,12 +8,9 @@ import * as Mood from "@/core/Mood";
 export const runtime = "nodejs";
 
 /**
- * Every backdrop and track the story can reach.
- *
- * The catalog is server-side so it stays out of the client bundle, but the browser
- * needs the list to warm its cache while the reader is still on the first scene.
- * The answer is the same for everyone and changes only when the catalogs do, so it
- * is computed once per process and cached hard at the edge.
+ * Every backdrop and track the story can reach. The catalogs stay server-side, but the
+ * browser needs the list to warm its cache, and the answer is the same for everyone,
+ * so it is computed once per process and cached hard at the edge.
  */
 const manifest = {
   scenes: [

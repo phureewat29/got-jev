@@ -16,11 +16,6 @@ const readJson = (request: Request) =>
     catch: () => new InvalidRequest({ message: "the request body must be JSON" }),
   });
 
-/**
- * Play one turn. Thin by design: decode, guard, run the engine, hand the `Exit` to
- * `respond`. Everything that can go wrong is a tagged error with a status already
- * decided for it.
- */
 export async function POST(
   request: Request,
   context: { params: Promise<{ id: string }> },

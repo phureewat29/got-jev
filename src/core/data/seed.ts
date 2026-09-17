@@ -1,8 +1,4 @@
-/**
- * Seed shapes for the static catalogs under `src/core/data/`.
- * The catalogs are plain `as const` data; `Location.ts`, `Beat.ts` and `Mood.ts`
- * derive Schemas and literal id unions from them.
- */
+/** Seed shapes for the catalogs; `Location.ts`, `Beat.ts` and `Mood.ts` derive their Schemas from them. */
 
 export const regions = [
   "The North",
@@ -47,11 +43,7 @@ export interface BeatSeed {
   /** What Jev sees as the option description. */
   readonly definition: string;
   readonly example: string;
-  /**
-   * Filename stem of this beat's backdrop under `public/scenes/`, for the beats
-   * that are the scene rather than something that happens inside one. The rest
-   * leave the frame to the place.
-   */
+  /** Backdrop stem under `public/scenes/`, for the beats that are the scene rather than a thing inside one. */
   readonly background?: string;
 }
 

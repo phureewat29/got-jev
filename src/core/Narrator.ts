@@ -1,7 +1,6 @@
 import { Context, type Effect } from "effect";
 import type { NarratorError } from "@/core/Errors";
 
-/** One chat message on the way to the story model. */
 export interface Message {
   readonly role: "system" | "user" | "assistant";
   readonly content: string;
@@ -14,8 +13,5 @@ export interface NarratorService {
   ) => Effect.Effect<string, NarratorError>;
 }
 
-/**
- * The prose port. `providers/OpenRouter` calls the story model over `HttpClient`;
- * `providers/CannedNarrator` returns fixed prose so tests stay offline.
- */
+/** The prose port: `providers/OpenRouter` live, `providers/CannedNarrator` for offline tests. */
 export class Narrator extends Context.Tag("story-effect/Narrator")<Narrator, NarratorService>() {}

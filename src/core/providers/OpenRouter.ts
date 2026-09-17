@@ -3,7 +3,6 @@ import { Config, type ConfigError, Duration, Effect, Layer, type Redacted, Sched
 import { describeCause, NarratorError } from "@/core/Errors";
 import { type Message, Narrator, type NarratorService } from "@/core/Narrator";
 
-/** What the live narrator needs. */
 export interface Options {
   readonly apiKey: Redacted.Redacted<string>;
   readonly model: string;
@@ -14,7 +13,7 @@ const endpoint = "https://openrouter.ai/api/v1/chat/completions";
 /** How long one scene may take before the turn is abandoned. */
 const deadline = Duration.seconds(45);
 
-/** Just enough of OpenRouter's response to lift the prose out of it. */
+/** Just enough of OpenRouter's response to lift the prose out of it. Excess keys decode fine. */
 const Completion = Schema.Struct({
   choices: Schema.NonEmptyArray(
     Schema.Struct({
@@ -27,9 +26,8 @@ const toNarratorError = (cause: unknown): NarratorError =>
   cause instanceof NarratorError ? cause : new NarratorError({ message: describeCause(cause) });
 
 /**
- * The live `Narrator`, over `HttpClient`. Status filtering and transient retries are
- * configured once on the client; everything that can go wrong downstream — transport,
- * status, body shape, deadline — folds into one `NarratorError`.
+ * The live `Narrator`. Status filtering and transient retries are configured once on the
+ * client, and everything that can go wrong downstream folds into one `NarratorError`.
  */
 export const make = Effect.fn("OpenRouter.make")(function* (options: Options) {
   const client = (yield* HttpClient.HttpClient).pipe(
@@ -66,11 +64,9 @@ export const make = Effect.fn("OpenRouter.make")(function* (options: Options) {
   return service;
 });
 
-/** The live narrator with fixed options. */
 export const layer = (options: Options): Layer.Layer<Narrator, never, HttpClient.HttpClient> =>
   Layer.effect(Narrator, make(options));
 
-/** The live narrator with its key and model read from configuration. */
 export const layerConfig = (
   options: Config.Config.Wrap<Options>,
 ): Layer.Layer<Narrator, ConfigError.ConfigError, HttpClient.HttpClient> =>

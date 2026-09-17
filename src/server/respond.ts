@@ -8,10 +8,8 @@ interface Failure {
 }
 
 /**
- * Every failure the app can reach the edge with, given a status code.
- *
- * `Match.exhaustive` is the point: a new `Schema.TaggedError` in the union stops the
- * build here until someone decides what the browser should see.
+ * Every failure the app can reach the edge with, given a status code. `Match.exhaustive`
+ * stops the build here when a new error joins the union, until someone picks a status.
  */
 const failureOf: (error: AppError) => Failure = Match.type<AppError>().pipe(
   Match.tag("StoryEnded", () => ({ status: 409, body: { error: "story_ended" } })),
@@ -41,12 +39,7 @@ const fromDefect = (cause: Cause.Cause<AppError>): Response => {
   return Response.json({ error: "internal" }, { status: 500 });
 };
 
-/**
- * Turn the result of running one program into an HTTP response.
- *
- * The Route Handlers do nothing else with failure: they hand the `Exit` here and every
- * outcome — success, a typed failure, an interruption, a defect — has exactly one answer.
- */
+/** The Route Handlers do nothing else with failure; they hand the `Exit` here. */
 export const respond = <A>(exit: Exit.Exit<A, AppError>): Response => {
   if (Exit.isSuccess(exit)) return Response.json(exit.value);
   return Option.match(Cause.failureOption(exit.cause), {

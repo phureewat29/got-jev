@@ -13,10 +13,7 @@ type SceneBackgroundProps = {
   readonly fallback: Position;
 };
 
-/**
- * A scene labelled before backdrops existed carries no artwork, so the guard
- * asks for the one field the layers actually need.
- */
+/** A scene labelled before backdrops existed carries no artwork, so the guard checks for it. */
 const hasBackdrop = (value: unknown): value is Position =>
   typeof value === "object" && value !== null && "background" in value;
 
@@ -28,12 +25,9 @@ const layerClass = (slot: Slot, showing: Slot): string =>
 const paint = (image: string | null): string => (image ? `url("${image}")` : "none");
 
 /**
- * The artwork behind the whole page: two stacked layers take turns holding the
- * current scene, so a move is a crossfade rather than a cut. The fade itself,
- * and its absence under `prefers-reduced-motion`, live in `globals.css`.
- *
- * The place is read the same way the header and the music read it — the last
- * scene Jev labelled — so the three can never disagree about where Jon stands.
+ * Two stacked layers take turns holding the current scene, so a move is a
+ * crossfade. The fade, and its absence under `prefers-reduced-motion`, live in
+ * `globals.css`.
  */
 export const SceneBackground = ({ fallback }: SceneBackgroundProps) => {
   const backdrop = useAuiState((state) => {
@@ -47,14 +41,10 @@ export const SceneBackground = ({ fallback }: SceneBackgroundProps) => {
   const [decks, setDecks] = useState<Decks>({ slot: 0, images: [backdrop, null] });
 
   /**
-   * The swap waits on `decode()` rather than on the request, so the incoming
-   * layer is already painted when it starts to rise and the fade cannot show a
-   * half-drawn frame. A scene that changes again mid-load drops the old wait on
-   * the floor, which also covers unmounting part-way through one.
-   *
-   * Artwork that has not been generated yet rejects, and is shown regardless:
-   * the empty layer fades up to the page colour, which is honest about where the
-   * story now stands rather than leaving the last scene's picture behind.
+   * The swap waits on `decode()` rather than on the request, so the incoming layer
+   * is already painted when it starts to rise and the fade cannot show a half-drawn
+   * frame. Artwork that has not been generated yet rejects and is shown anyway, so
+   * the empty layer fades up to the page colour rather than stranding the last scene.
    */
   useEffect(() => {
     let live = true;

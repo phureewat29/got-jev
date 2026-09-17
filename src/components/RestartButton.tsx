@@ -4,7 +4,6 @@ type RestartButtonProps = {
   readonly onRestart: () => void;
 };
 
-/** Abandons the current tale and opens a new one. */
 export const RestartButton = ({ onRestart }: RestartButtonProps) => (
   <button
     type="button"

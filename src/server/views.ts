@@ -15,12 +15,9 @@ const place = (id: Location.LocationId): Wire.Place => ({
 });
 
 /**
- * The domain stores ids; the wire carries the name the header shows and the path
- * the artwork is fetched from, so the browser never carries the catalog.
- *
- * The beat travels beside the place because the backdrop belongs to the scene
- * rather than the map: a battle looks like a battle wherever it is fought. The
- * opening has no beat and hands `Option.none()`, which falls back to the place.
+ * The beat travels beside the place because the backdrop belongs to the scene rather
+ * than the map: a battle looks like a battle wherever it is fought. The opening has
+ * no beat and hands `Option.none()`, which falls back to the place.
  */
 export const position = (
   where: Position.Position,
@@ -34,10 +31,7 @@ export const position = (
 const standingBeat = (state: Story.StoryState): Option.Option<Beat.BeatId> =>
   Option.map(Story.lastDecision(state), (decision) => decision.beat);
 
-/**
- * The opening message. It carries the opening position and mood, so the header and the
- * soundtrack have something to read before a single turn is played.
- */
+/** Carries the opening position and mood, so the header and the music can read them at turn zero. */
 const opening: Wire.Message = {
   id: "prologue",
   role: "assistant",

@@ -10,8 +10,8 @@ import { QuestionModel } from "@/core/QuestionModel";
 import * as Story from "@/core/Story";
 
 /**
- * A `location` option as Jev sees it. Every option is the same shape, so the model
- * compares like with like instead of reading seventy differently written blurbs.
+ * A `location` option as Jev sees it. Every option in a question shares a shape, so the
+ * model compares like with like instead of reading seventy differently written blurbs.
  */
 type LocationOption = {
   region: string;
@@ -19,19 +19,16 @@ type LocationOption = {
   also_called: string[];
 };
 
-/** A `beat` option as Jev sees it: what the scene is, with the canonical one named. */
 type BeatOption = {
   definition: string;
   example: string;
 };
 
-/** A `mood` option as Jev sees it: what the scene feels like, with canonical examples. */
 type MoodOption = {
   feel: string;
   examples: string[];
 };
 
-/** One exchange of the story, as Jev reads it. */
 type Scene = {
   readonly action: string;
   readonly narration: string;
@@ -44,9 +41,8 @@ type PreviousPosition = {
 };
 
 /**
- * The single state every question is asked about. Questions point at it by backticked
- * path — `scene.narration`, `story.previous_position` — so one request answers five
- * questions over one payload.
+ * The single state every question is asked about. Questions point into it by backticked
+ * path (`scene.narration`, `story.previous_position`), so one request answers all five.
  */
 export type OracleState = {
   readonly story: {
@@ -56,10 +52,7 @@ export type OracleState = {
   readonly scene: Scene;
 };
 
-/**
- * Build a criteria record whose keys stay literal. `Object.fromEntries` widens them,
- * and the SDK's `const` generic is what carries the catalog ids into `Answers`.
- */
+/** `Object.fromEntries` widens the keys, so the cast is what keeps the catalog ids literal. */
 const criteriaOf = <K extends string, A>(entries: ReadonlyArray<readonly [K, A]>): Record<K, A> =>
   Object.fromEntries(entries) as Record<K, A>;
 
@@ -86,16 +79,12 @@ const moodCriteria: Record<Mood.MoodId, MoodOption> = criteriaOf(
 );
 
 /**
- * The question set for one System One request: three `choice`, one `score`, one
- * `noul`, every one of them judged against the same state.
+ * Declared as a constant so the `criteria` stay literal: the SDK's `const` generic
+ * carries those keys into `SystemOneResult<typeof questions>`, which types
+ * `answers.mood.choice` as a union of catalog ids rather than `string`.
  *
- * Declared as a constant so the `criteria` stay literal. The SDK's `const` generic
- * carries those keys into `SystemOneResult<typeof questions>`, which is what types
- * `answers.mood.choice` as a union of catalog ids rather than `string`, and what
- * makes `byId[answers.mood.choice]` a lookup that cannot miss.
- *
- * The keys here name the answers, not the questions. Jev is never shown `location`
- * or `beat`, so every `instructions` string has to be self-contained.
+ * The keys name the answers, not the questions. Jev is never shown `location` or
+ * `beat`, so every `instructions` string has to be self-contained.
  */
 export const questions = {
   location: choice(
@@ -131,7 +120,6 @@ export const questions = {
   ),
 };
 
-/** Every answer of one turn, with the catalog ids carried through as literal types. */
 export type Answers = SystemOneResult<typeof questions>["answers"];
 
 const previousPosition = (position: Position.Position): PreviousPosition => ({
@@ -142,10 +130,6 @@ const previousPosition = (position: Position.Position): PreviousPosition => ({
 /** How many earlier turns Jev is shown for continuity. */
 export const recentTurnCount = 3;
 
-/**
- * Build the state the five questions are asked about: where the story stood, the last
- * three exchanges, and the scene that was just written.
- */
 export const stateFor = (state: Story.StoryState, action: string, narration: string): OracleState => ({
   story: {
     previous_position: previousPosition(state.position),
@@ -157,7 +141,7 @@ export const stateFor = (state: Story.StoryState, action: string, narration: str
   scene: { action, narration },
 });
 
-/** Label one scene: a single Jev request answering all five questions in parallel. */
+/** Label one scene: one Jev request answering all five questions. */
 export const judge = Effect.fn("Oracle.judge")(function* (state: OracleState) {
   const model = yield* QuestionModel;
   const result = yield* model.evaluate(state, questions);

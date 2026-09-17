@@ -11,12 +11,9 @@ import * as RateLimiter from "@/server/RateLimiter";
 const typeSafeTimeout = Config.integer("TYPESAFE_TIMEOUT_MS").pipe(Config.withDefault(10_000));
 
 /**
- * The whole application, assembled once.
- *
- * Every provider takes its options as `Config`, so the environment is read once, at the
- * edge of the app. `Layer.orDie` at the end is what makes the runtime's error channel
- * `never`: a missing key or an unusable Redis URL is a boot failure, not a request
- * failure, and `src/instrumentation.ts` is what turns that into a loud start-up crash.
+ * The whole application, assembled once. `Layer.orDie` makes the runtime's error channel
+ * `never`: a missing key or an unusable Redis URL is a boot failure, which
+ * `src/instrumentation.ts` turns into a start-up crash.
  */
 export const AppLive = Layer.mergeAll(
   TypeSafe.layerConfig({

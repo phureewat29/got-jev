@@ -13,17 +13,15 @@ export class RateLimiter extends Context.Tag("story-effect/RateLimiter")<
   RateLimiterService
 >() {}
 
-/** How wide one window is and how many turns fit in it. */
 export interface Tier {
   readonly limit: number;
   readonly windowMillis: number;
 }
 
 /**
- * Two windows, because they stop different things. The burst window stops a script
- * hammering the endpoint; the daily window stops one visitor draining the whole
- * demo's budget, which the per-session cap cannot do on its own — starting a new
- * tale mints a new session id, so only the caller is durable.
+ * The burst window stops a script hammering the endpoint. The daily window stops one
+ * visitor draining the whole demo's budget, which the per-session cap cannot do:
+ * starting a new tale mints a new session id, so only the caller is durable.
  */
 export interface Options {
   readonly burst: Tier;
@@ -43,7 +41,6 @@ const sweepAbove = 1024;
 
 type Windows = HashMap.HashMap<string, ReadonlyArray<number>>;
 
-/** One map per tier; a caller appears in both. */
 interface State {
   readonly burst: Windows;
   readonly daily: Windows;
@@ -67,9 +64,7 @@ const waitFor = (recent: ReadonlyArray<number>, cutoff: number): number =>
   Math.max(1, Math.ceil(((recent[0] ?? cutoff) - cutoff) / 1000));
 
 /**
- * Admit a caller, or say how long they must wait. Pure, and returns the next state, so
- * the whole decision is one atomic `Ref.modify`.
- *
+ * Pure, and returns the next state, so the whole decision is one atomic `Ref.modify`.
  * Both tiers are judged before either records a hit: admitting into the burst window
  * and then refusing on the daily one would charge the caller for a turn they never got.
  */
@@ -108,7 +103,7 @@ const admit = (
   ];
 };
 
-/** Build the limiter: one `Ref` of timestamps per tier per caller, trimmed as it is read. */
+/** One `Ref` of timestamps per tier per caller, held in this process alone. */
 export const make = Effect.fn("RateLimiter.make")(function* (options: Options = defaults) {
   const state = yield* Ref.make<State>(empty);
 
@@ -123,7 +118,6 @@ export const make = Effect.fn("RateLimiter.make")(function* (options: Options = 
   return service;
 });
 
-/** The limiter as a layer. */
 export const layer = (options: Options = defaults): Layer.Layer<RateLimiter> =>
   Layer.effect(RateLimiter, make(options));
 
@@ -148,8 +142,8 @@ export const layerConfig: Layer.Layer<RateLimiter, ConfigError.ConfigError> = La
 );
 
 /**
- * Who is calling. Behind a proxy that is the first `x-forwarded-for` hop; run locally
- * there is no such header and everyone shares one window.
+ * The first `x-forwarded-for` hop. Run locally there is no such header, so everyone
+ * shares one window.
  */
 export const callerOf = (headers: Headers): string =>
   headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";

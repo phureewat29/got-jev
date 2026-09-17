@@ -10,10 +10,7 @@ export interface QuestionModelService {
   ) => Effect.Effect<SystemOneResult<Q>, QuestionError>;
 }
 
-/**
- * The typed-judgement port. `providers/TypeSafe` talks to Jev; `providers/CannedJev`
- * answers from keyword rules so the engine can be tested without a network.
- */
+/** The typed-judgement port: `providers/TypeSafe` talks to Jev, `providers/CannedJev` does not. */
 export class QuestionModel extends Context.Tag("story-effect/QuestionModel")<
   QuestionModel,
   QuestionModelService
