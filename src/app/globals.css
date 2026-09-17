@@ -1,6 +1,6 @@
 /**
- * Palette and metrics. The scene artwork is the page's ground now, so there is
- * one palette rather than two: cream ink on dark, whatever the system asks for.
+ * Palette and metrics. The scene artwork is the page's ground, so there is one
+ * palette rather than a light one and a dark one.
  */
 :root {
   color-scheme: dark;
@@ -43,10 +43,10 @@ body {
 }
 
 /**
- * Scene artwork. Two layers sit behind everything on a negative stacking level,
- * so the page paints over them without any element needing a z-index of its own,
- * and the body colour shows through whenever a picture is missing or still on
- * its way. Only one layer is lit at a time; `SceneBackground` swaps which.
+ * Scene artwork. The negative stacking level puts both layers behind everything
+ * without any other element needing a z-index, and lets the body colour show through
+ * while a picture is missing or still on its way. `SceneBackground` swaps which layer
+ * is lit.
  */
 .backdrop {
   position: fixed;
@@ -70,10 +70,9 @@ body {
 }
 
 /**
- * The artwork is generated bright on purpose; darkening it is this one
- * element's job, which keeps it adjustable without touching ninety-three files. It
- * leans heavier at top and bottom, where the header and the composer sit over
- * whatever the picture happens to be doing there.
+ * The artwork is generated bright, so the darkening happens here rather than across
+ * ninety-three files. It leans heavier at top and bottom, where the header and the
+ * composer sit over whatever the picture is doing.
  */
 .backdrop-scrim {
   position: absolute;
@@ -113,10 +112,8 @@ body {
 }
 
 /**
- * Header. It sits on the bare picture rather than on a panel, so everything in
- * it carries a shadow: the text inherits one, and the wordmark — a mask, not
- * text — takes the same shadow through a filter. Without them a bright patch of
- * sky swallows the line telling you where you are.
+ * Header. It sits on the bare picture rather than on a panel, so it carries a shadow:
+ * without one a bright patch of sky swallows the line telling you where you are.
  */
 .header {
   flex: 0 0 auto;
@@ -167,9 +164,8 @@ body {
 }
 
 /**
- * Separates the place from the track. The rule is drawn as a border so the
- * spacing never collapses, and it is dimmer than either label so the eye reads
- * the two facts rather than the mark between them.
+ * Drawn as a border so the spacing never collapses, and kept dimmer than the labels
+ * on either side of it.
  */
 .divider {
   display: inline-block;
@@ -182,7 +178,6 @@ body {
   text-indent: -999px;
 }
 
-/** The judged labels: one step quieter than the place they sit under */
 .labels {
   margin: 7px 0 0;
   font-family: var(--font-display), Georgia, serif;
@@ -194,8 +189,8 @@ body {
 }
 
 /**
- * Labels change on the turn, not on a click, so they fade in rather than snap.
- * Keyed on their own text in the component, which is what restarts the animation.
+ * Labels fade in rather than snap. The component keys the span on its own text,
+ * which is what restarts the animation.
  */
 .fading {
   display: inline-block;
@@ -226,12 +221,9 @@ body {
 }
 
 /**
- * The single chatbox: thread above, composer below. Smoked glass rather than a
- * solid panel, so the scene stays visible under the prose and the page reads as
- * one image with words on it. The blur is what keeps a busy patch of artwork
- * from competing with the text it sits behind; the border is softened to match,
- * since a full-strength accent rule outlines the panel too sharply once the
- * panel itself is see-through.
+ * Thread above, composer below. The blur keeps a busy patch of artwork from competing
+ * with the text over it, and the border is softened because a full-strength accent
+ * rule outlines a see-through panel too sharply.
  */
 .chatbox {
   display: flex;
@@ -255,13 +247,10 @@ body {
 }
 
 /**
- * Padding on a scroll container only sets where the content starts; it scrolls
- * away, so prose ends up sliced against the border. The mask fades the top and
- * bottom edges instead, and because the fade is shorter than the padding it
- * covers only empty space at either end of the scroll — the first and last
- * lines stay at full strength, while anything mid-scroll dissolves into the
- * parchment rather than hitting the rule. It doubles as the cue for more text
- * that the hidden scrollbar no longer gives.
+ * Padding on a scroll container scrolls away with the content, so prose ends up sliced
+ * against the border. The mask fades the top and bottom edges instead. The fade is
+ * kept shorter than the padding, so the first and last lines stay at full strength,
+ * and it doubles as the cue for more text that the hidden scrollbar no longer gives.
  */
 .viewport {
   --edge-fade: 20px;
@@ -305,14 +294,10 @@ body {
 }
 
 /**
- * The player's move sits in a bubble so it reads as an aside to the narration
- * rather than part of it. Inline-block makes the bubble hug short actions; the
- * squared bottom-right corner points it back at the sender.
- *
- * The tint is opaque and carries more accent than it did on parchment: a
- * see-through bubble on a see-through panel is two sheets of glass and reads as
- * neither, and a light hand with the accent over a dark ground leaves the
- * bubble indistinguishable from the panel behind it.
+ * The player's move sits in a bubble that inline-block lets hug a short action. The
+ * tint is opaque: a see-through bubble on a see-through panel reads as neither, and a
+ * light hand with the accent over a dark ground leaves it indistinguishable from the
+ * panel behind.
  */
 .message-user .prose {
   display: inline-block;
@@ -347,9 +332,8 @@ body {
 }
 
 /**
- * A quill working down a line: it pivots about its nib, so the feather sweeps
- * while the writing point stays put — the motion a pen actually makes. Slow and
- * small on purpose; a loading mark that performs reads as a toy.
+ * The quill pivots about its nib, so the feather sweeps while the writing point stays
+ * put.
  */
 .quill {
   flex: 0 0 auto;
@@ -391,9 +375,8 @@ body {
 }
 
 /**
- * The ink running along the line the quill above is working. It shares the
- * duration and the easing of `quill-write`, so the sweep and the stroke keep time
- * with one another instead of drifting apart on a long wait.
+ * The ink running along the line the quill is working. It shares the duration and the
+ * easing of `quill-write`, so the two keep time instead of drifting apart on a long wait.
  */
 .splash-rule {
   position: relative;
@@ -426,11 +409,6 @@ body {
   }
 }
 
-/**
- * The press that opens the tale. It is the reader's first gesture and so the one
- * that frees the music, which is why the screen ends on a button rather than
- * dismissing itself.
- */
 .splash-enter {
   animation: enter-rise 600ms ease-out both;
 }
@@ -444,6 +422,42 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .splash-enter {
+    animation: none;
+  }
+}
+
+/**
+ * The handover: the splash lifts away and the scene fades up from the page colour
+ * underneath it.
+ *
+ * `.app-enter` animates opacity and nothing else on purpose. A transform here would
+ * make `main` the containing block for the `position: fixed` backdrop inside it, and
+ * the artwork would snap into the text column for the length of the animation.
+ */
+.splash.is-leaving {
+  animation: splash-leave 420ms ease-in both;
+}
+
+@keyframes splash-leave {
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+.app-enter {
+  animation: scene-enter 800ms ease-out both;
+}
+
+@keyframes scene-enter {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash.is-leaving,
+  .app-enter {
     animation: none;
   }
 }
@@ -534,10 +548,9 @@ body {
 }
 
 /**
- * Music. This row is the only chrome that sits on bare artwork rather than on
- * the panel, so it carries a shadow of its own — `drop-shadow` rather than
- * `text-shadow` because what needs separating from the picture is icon paths
- * and equaliser bars, not glyphs.
+ * Music. This row sits on bare artwork rather than on the panel, so it carries a
+ * shadow of its own: `drop-shadow` rather than `text-shadow`, because what needs
+ * separating from the picture is icon paths and equaliser bars rather than glyphs.
  */
 .controls {
   order: -1;
@@ -555,10 +568,6 @@ body {
   align-items: center;
 }
 
-/**
- * Three bars beside the sound toggle. They rest low and dim when nothing is
- * audible, so the control reads as off at a glance rather than needing the icon.
- */
 .equaliser {
   display: inline-flex;
   align-items: flex-end;
@@ -608,10 +617,8 @@ body {
 }
 
 /**
- * Quiet chrome: an icon that only states itself when it needs confirming. One
- * step up from the faintest ink, because these two buttons are read against
- * whatever the scene happens to be doing behind them rather than against a
- * known page colour.
+ * One step up from the faintest ink, because these buttons are read against whatever
+ * the scene is doing behind them rather than against a known page colour.
  */
 .icon-button {
   display: inline-flex;
@@ -643,10 +650,7 @@ body {
   color: var(--ink-soft);
 }
 
-/**
- * Scrollbars are hidden, not disabled: the thread still scrolls by wheel, drag,
- * touch and keyboard, it just does not draw a track over the parchment.
- */
+/** Hidden, not disabled: the thread still scrolls by wheel, touch and keyboard. */
 * {
   scrollbar-width: none;
   -ms-overflow-style: none;
