@@ -4,15 +4,8 @@
  */
 
 export const MOODS = [
-  "battle",
-  "tense",
-  "ominous",
-  "sorrowful",
-  "romantic",
-  "calm",
-  "relaxed",
-  "curious",
-  "triumphant",
+  "martial", "battle", "tense", "scheming", "ominous", "mystical", "sorrowful",
+  "romantic", "calm", "relaxed", "bustling", "curious", "triumphant",
 ] as const;
 
 export type MoodId = (typeof MOODS)[number];
