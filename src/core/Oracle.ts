@@ -86,11 +86,16 @@ const moodCriteria: Record<Mood.MoodId, MoodOption> = criteriaOf(
 );
 
 /**
- * The five questions Jev answers about every scene, in one request.
+ * The question set for one System One request: three `choice`, one `score`, one
+ * `noul`, every one of them judged against the same state.
  *
- * A module constant, not a function: the criteria are literal, so the SDK's `const`
- * generics carry the catalog ids all the way into `Answers` and `byId[choice]` is total.
- * Question names are not sent to the model, so each `instructions` string stands alone.
+ * Declared as a constant so the `criteria` stay literal. The SDK's `const` generic
+ * carries those keys into `SystemOneResult<typeof questions>`, which is what types
+ * `answers.mood.choice` as a union of catalog ids rather than `string`, and what
+ * makes `byId[answers.mood.choice]` a lookup that cannot miss.
+ *
+ * The keys here name the answers, not the questions. Jev is never shown `location`
+ * or `beat`, so every `instructions` string has to be self-contained.
  */
 export const questions = {
   location: choice(
