@@ -1,4 +1,3 @@
-import { Match } from "effect";
 import * as Background from "@/core/Background";
 import { openingLocationId, openingMoodId, prologue } from "@/core/data/prologue";
 import * as Location from "@/core/Location";
@@ -13,24 +12,13 @@ const place = (id: Location.LocationId): Wire.Place => ({
   region: Location.byId[id].region,
 });
 
-const whereabouts = Match.type<Position.Position>().pipe(
-  Match.tag("At", (at) => ({ kind: "at" as const, location: place(at.location) })),
-  Match.tag("OnRoad", (road) => ({
-    kind: "on_road" as const,
-    from: place(road.from),
-    toward: road.toward,
-  })),
-  Match.exhaustive,
-);
-
 /**
- * The domain stores ids; the wire carries the names the header shows and the
- * path the artwork is fetched from. Both arms get a backdrop, so resolving it
- * sits outside the match rather than once per tag.
+ * The domain stores an id; the wire carries the name the header shows and the
+ * path the artwork is fetched from, so the browser never carries the catalog.
  */
-export const position = (at: Position.Position): Wire.Position => ({
-  ...whereabouts(at),
-  background: Background.forPosition(at),
+export const position = (where: Position.Position): Wire.Position => ({
+  location: place(where.location),
+  background: Background.forPosition(where),
 });
 
 /**

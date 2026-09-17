@@ -82,11 +82,7 @@ export const playTurn = Effect.fn("StoryEngine.playTurn")(
       ),
     );
 
-    const decision = Decision.resolve({
-      answers: attempt.answers,
-      previous: state.position,
-      turnIndex,
-    });
+    const decision = Decision.resolve(attempt.answers);
     const saved = Story.appendTurn(
       state,
       {

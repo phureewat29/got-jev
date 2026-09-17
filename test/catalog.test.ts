@@ -74,6 +74,7 @@ describe("beat and mood catalogs", () => {
   });
 
   it("keeps the fallbacks inside their catalogs", () => {
+    expect(Location.isLocationId(Location.fallback)).toBe(true);
     expect(Beat.isBeatId(Beat.fallback)).toBe(true);
     expect(Mood.isMoodId(Mood.fallback)).toBe(true);
     expect(Danger.isDangerId(Danger.fallback)).toBe(true);
@@ -98,15 +99,14 @@ describe("danger rubric", () => {
 
 describe("position", () => {
   it("round-trips through its schema", () => {
-    const road = Position.onRoad({ from: "castle-black", toward: "The North", since: 2 });
-    const encoded = Schema.encodeSync(Position.Position)(road);
-    expect(Schema.decodeSync(Position.Position)(encoded)).toEqual(road);
+    const where = Position.at("castle-black");
+    const encoded = Schema.encodeSync(Position.Position)(where);
+    expect(Schema.decodeSync(Position.Position)(encoded)).toEqual(where);
   });
 
-  it("anchors a journey at the place it left", () => {
-    expect(Position.anchorOf(Position.at("winterfell"))).toBe("winterfell");
-    expect(
-      Position.anchorOf(Position.onRoad({ from: "winterfell", toward: "Essos", since: 1 })),
-    ).toBe("winterfell");
+  it("only ever stands somewhere the catalog knows", () => {
+    const decode = Schema.decodeUnknownEither(Position.Position);
+    expect(decode({ location: "winterfell" })._tag).toBe("Right");
+    expect(decode({ location: "kings-cross" })._tag).toBe("Left");
   });
 });

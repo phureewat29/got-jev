@@ -24,11 +24,6 @@ describe("Background.forPosition", () => {
     expect(Background.pathOf("winterfell")).toBe("/scenes/winterfell.webp");
   });
 
-  it("shows a journey the country it is heading into", () => {
-    const road = Position.onRoad({ from: "castle-black", toward: "The North", since: 2 });
-    expect(Background.forPosition(road)).toBe(Background.pathOf(regionBackground["The North"]));
-  });
-
   it("gives every place in the catalog a picture to show", () => {
     const blank = Location.all
       .map((location) => ({
@@ -41,12 +36,7 @@ describe("Background.forPosition", () => {
 
   it("gives every region a picture to show", () => {
     const blank = Location.allRegions.filter(
-      (region) =>
-        !scene.test(
-          Background.forPosition(
-            Position.onRoad({ from: "castle-black", toward: region, since: 1 }),
-          ),
-        ),
+      (region) => !scene.test(Background.pathOf(Background.stemForRegion(region))),
     );
     expect(blank).toEqual([]);
   });
@@ -74,7 +64,7 @@ describe("Background fallbacks", () => {
   });
 
   it("falls to the default when the region is not one of ours", () => {
-    expect(Background.stemToward("Yi Ti")).toBe(defaultBackground);
-    expect(Background.stemToward("")).toBe(defaultBackground);
+    expect(Background.stemForRegion("Yi Ti")).toBe(defaultBackground);
+    expect(Background.stemForRegion("")).toBe(defaultBackground);
   });
 });

@@ -15,7 +15,7 @@ type SceneBackgroundProps = {
 
 /**
  * A scene labelled before backdrops existed carries no artwork, so the guard
- * asks for the field the layers actually need rather than for the tag.
+ * asks for the one field the layers actually need.
  */
 const hasBackdrop = (value: unknown): value is Position =>
   typeof value === "object" && value !== null && "background" in value;

@@ -17,7 +17,7 @@ export const regions = [
   "The Reach",
   "Dorne",
   "Essos",
-  "Westeros (travel)",
+  "The Roads",
 ] as const;
 
 export type Region = (typeof regions)[number];

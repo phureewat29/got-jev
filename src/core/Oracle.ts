@@ -1,5 +1,5 @@
 import type { SystemOneResult } from "@typesafe-ai/sdk";
-import { Effect, Match } from "effect";
+import { Effect } from "effect";
 import * as Beat from "@/core/Beat";
 import * as Danger from "@/core/Danger";
 import * as Location from "@/core/Location";
@@ -11,7 +11,7 @@ import * as Story from "@/core/Story";
 
 /**
  * A `location` option as Jev sees it. Every option is the same shape, so the model
- * compares like with like instead of reading fifty-seven differently written blurbs.
+ * compares like with like instead of reading fifty-six differently written blurbs.
  */
 type LocationOption = {
   region: string;
@@ -32,13 +32,14 @@ type Scene = {
 };
 
 /** Where the story stood before this scene, in words rather than ids. */
-type PreviousPosition =
-  | { readonly kind: "at"; readonly location: string; readonly region: string }
-  | { readonly kind: "on_road"; readonly from: string; readonly toward: string };
+type PreviousPosition = {
+  readonly location: string;
+  readonly region: string;
+};
 
 /**
  * The single state every question is asked about. Questions point at it by backticked
- * path — `scene.narration`, `story.previous_position` — so one request answers six
+ * path — `scene.narration`, `story.previous_position` — so one request answers five
  * questions over one payload.
  */
 export type OracleState = {
@@ -62,18 +63,8 @@ const describeLocation = (location: Location.Location): LocationOption => ({
   also_called: [...location.also_called],
 });
 
-const locationCriteria: Record<Location.Whereabouts, LocationOption> = {
-  ...criteriaOf(Location.all.map((location) => [location.id, describeLocation(location)] as const)),
-  [Location.IN_TRANSIT]: {
-    region: "between regions",
-    summary:
-      "The scene ends on the road or at sea between named places, no named location reached",
-    also_called: ["on the road", "at sea", "between places", "still travelling"],
-  },
-};
-
-const headingCriteria: Record<Location.Region, null> = criteriaOf(
-  Location.allRegions.map((region) => [region, null] as const),
+const locationCriteria: Record<Location.LocationId, LocationOption> = criteriaOf(
+  Location.all.map((location) => [location.id, describeLocation(location)] as const),
 );
 
 const beatCriteria: Record<Beat.BeatId, string> = criteriaOf(
@@ -87,7 +78,7 @@ const moodCriteria: Record<Mood.MoodId, MoodOption> = criteriaOf(
 );
 
 /**
- * The six questions Jev answers about every scene, in one request.
+ * The five questions Jev answers about every scene, in one request.
  *
  * A module constant, not a function: the criteria are literal, so the SDK's `const`
  * generics carry the catalog ids all the way into `Answers` and `byId[choice]` is total.
@@ -95,17 +86,11 @@ const moodCriteria: Record<Mood.MoodId, MoodOption> = criteriaOf(
  */
 export const questions = {
   location: choice(
-    "Where is Jon Snow at the END of `scene.narration`? Pick the named place the scene leaves him in. " +
+    "Where is Jon Snow at the END of `scene.narration`? Name the place the scene leaves him in. " +
       "Use `story.previous_position` as context when the prose does not move him: a scene that only talks, " +
-      "fights or reflects leaves him where he already was. Pick `in_transit` only when the scene ends with " +
-      "him still travelling and no named place reached.",
+      "fights or reflects leaves him where he already was. Always name a real place — if the scene ends " +
+      "between places, name the one it leaves him nearest to, or the one he is heading into.",
     locationCriteria,
-  ),
-  heading: choice(
-    "If `scene.narration` ends with Jon Snow still travelling, which region of the known world is he " +
-      "travelling toward? Answer from the direction, the road and the destinations named in the prose. " +
-      "Answer this even when the scene ends somewhere settled — it is read only when he is on the road.",
-    headingCriteria,
   ),
   beat: choice(
     "What kind of scene is `scene.narration`? Judge the scene as a whole, by what most of it is spent doing, " +
@@ -136,27 +121,16 @@ export const questions = {
 /** Every answer of one turn, with the catalog ids carried through as literal types. */
 export type Answers = SystemOneResult<typeof questions>["answers"];
 
-const previousPosition: (position: Position.Position) => PreviousPosition = Match.type<
-  Position.Position
->().pipe(
-  Match.tag("At", (position) => ({
-    kind: "at" as const,
-    location: Location.nameOf(position.location),
-    region: Location.byId[position.location].region,
-  })),
-  Match.tag("OnRoad", (position) => ({
-    kind: "on_road" as const,
-    from: Location.nameOf(position.from),
-    toward: position.toward,
-  })),
-  Match.exhaustive,
-);
+const previousPosition = (position: Position.Position): PreviousPosition => ({
+  location: Location.nameOf(position.location),
+  region: Location.byId[position.location].region,
+});
 
 /** How many earlier turns Jev is shown for continuity. */
 export const recentTurnCount = 3;
 
 /**
- * Build the state the six questions are asked about: where the story stood, the last
+ * Build the state the five questions are asked about: where the story stood, the last
  * three exchanges, and the scene that was just written.
  */
 export const stateFor = (state: Story.StoryState, action: string, narration: string): OracleState => ({
@@ -170,7 +144,7 @@ export const stateFor = (state: Story.StoryState, action: string, narration: str
   scene: { action, narration },
 });
 
-/** Label one scene: a single Jev request answering all six questions in parallel. */
+/** Label one scene: a single Jev request answering all five questions in parallel. */
 export const judge = Effect.fn("Oracle.judge")(function* (state: OracleState) {
   const model = yield* QuestionModel;
   const result = yield* model.evaluate(state, questions);

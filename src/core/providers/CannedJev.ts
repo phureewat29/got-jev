@@ -30,10 +30,7 @@ const outOfFiction = /\b(ai|assistant|language model|model|prompt|instruction|in
 /** As much of `Oracle.stateFor` as the rules need; anything else is ignored. */
 const CannedState = Schema.Struct({
   story: Schema.Struct({
-    previous_position: Schema.Union(
-      Schema.Struct({ kind: Schema.Literal("at"), location: Schema.String }),
-      Schema.Struct({ kind: Schema.Literal("on_road"), from: Schema.String }),
-    ),
+    previous_position: Schema.Struct({ location: Schema.String }),
   }),
   scene: Schema.Struct({ action: Schema.String, narration: Schema.String }),
 });
@@ -43,15 +40,12 @@ const decodeState = Schema.decodeUnknownOption(CannedState);
 const idOfName = (name: string): string | undefined =>
   Location.all.find((location) => location.name === name)?.id;
 
-const previousIdOf = (position: (typeof CannedState.Type)["story"]["previous_position"]) =>
-  position.kind === "at" ? idOfName(position.location) : idOfName(position.from);
-
 const readScene = (state: EntryType): Scene =>
   decodeState(state).pipe(
     Option.map((decoded) => ({
       text: `${decoded.scene.action} ${decoded.scene.narration}`.toLowerCase(),
       narration: decoded.scene.narration,
-      previous: previousIdOf(decoded.story.previous_position),
+      previous: idOfName(decoded.story.previous_position.location),
     })),
     Option.getOrElse(() => ({ text: "", narration: "", previous: undefined })),
   );
@@ -67,7 +61,7 @@ const mentions = (text: string, label: string): boolean => {
 };
 
 /** Options that stand in when nothing in the prose picks a side. */
-const fallbacks: ReadonlyArray<string> = [Location.IN_TRANSIT, "journey", "curious", "The North"];
+const fallbacks: ReadonlyArray<string> = ["journey", "curious"];
 
 const fallbackFor = (labels: ReadonlyArray<string>, previous: string | undefined): string => {
   if (previous !== undefined && labels.includes(previous)) return previous;
@@ -78,7 +72,6 @@ const choose = (labels: ReadonlyArray<string>, scene: Scene): string => {
   const named = labels.find((label) => mentions(scene.text, label));
   if (named !== undefined) return named;
   if (battle.test(scene.text) && labels.includes("battle")) return "battle";
-  if (travel.test(scene.text) && labels.includes(Location.IN_TRANSIT)) return Location.IN_TRANSIT;
   return fallbackFor(labels, scene.previous);
 };
 

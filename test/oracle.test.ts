@@ -4,7 +4,6 @@ import * as Danger from "@/core/Danger";
 import * as Location from "@/core/Location";
 import * as Mood from "@/core/Mood";
 import * as Oracle from "@/core/Oracle";
-import * as Position from "@/core/Position";
 import * as Story from "@/core/Story";
 import { playedTurn, sessionId } from "./helpers";
 
@@ -12,10 +11,9 @@ const openedAt = new Date("2026-01-01T00:00:00.000Z");
 const seed = Story.seed(sessionId, openedAt);
 
 describe("Oracle.questions", () => {
-  it("asks six questions in one request", () => {
+  it("asks five questions in one request", () => {
     expect(Object.keys(Oracle.questions)).toEqual([
       "location",
-      "heading",
       "beat",
       "mood",
       "danger",
@@ -23,11 +21,16 @@ describe("Oracle.questions", () => {
     ]);
   });
 
-  it("offers every catalog place plus the road", () => {
+  it("offers every catalog place and nothing that is not one", () => {
     const labels = Object.keys(Oracle.questions.location.criteria);
-    expect(labels.length).toBe(Location.all.length + 1);
-    expect(labels).toContain(Location.IN_TRANSIT);
+    expect(labels.length).toBe(Location.all.length);
+    expect(labels.every(Location.isLocationId)).toBe(true);
     expect(labels).toContain("castle-black");
+  });
+
+  it("asks for a real place even when the scene ends between two", () => {
+    const instructions = String(Oracle.questions.location.instructions);
+    expect(instructions).toContain("Always name a real place");
   });
 
   it("describes every place with the same shape", () => {
@@ -37,12 +40,6 @@ describe("Oracle.questions", () => {
       ),
     );
     expect([...shapes]).toEqual(["also_called,region,summary"]);
-  });
-
-  it("leaves the regions undescribed and covers every one", () => {
-    const criteria = Oracle.questions.heading.criteria;
-    expect(Object.keys(criteria).length).toBe(Location.allRegions.length);
-    expect(Object.values(criteria).every((value) => value === null)).toBe(true);
   });
 
   it("describes beats by definition and moods by feel", () => {
@@ -70,7 +67,6 @@ describe("Oracle.stateFor", () => {
   it("carries the opening position, no history and the new scene", () => {
     const state = Oracle.stateFor(seed, "I look north", "You look north, and the wind answers.");
     expect(state.story.previous_position).toEqual({
-      kind: "at",
       location: "Castle Black",
       region: "The Wall",
     });
@@ -79,16 +75,6 @@ describe("Oracle.stateFor", () => {
       action: "I look north",
       narration: "You look north, and the wind answers.",
     });
-  });
-
-  it("shows the road rather than a place when Jon is travelling", () => {
-    const travelling: Story.StoryState = {
-      ...seed,
-      position: Position.onRoad({ from: "castle-black", toward: "The North", since: 1 }),
-    };
-    expect(Oracle.stateFor(travelling, "I ride on", "You ride on.").story.previous_position).toEqual(
-      { kind: "on_road", from: "Castle Black", toward: "The North" },
-    );
   });
 
   it("shows only the last few exchanges", () => {

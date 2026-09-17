@@ -38,14 +38,10 @@ export type LocationRef = {
  * The backdrop travels with the position, already resolved to a public path by
  * the server, so the browser never carries the location catalog to work it out.
  */
-export type Position =
-  | { readonly kind: "at"; readonly location: LocationRef; readonly background: string }
-  | {
-      readonly kind: "on_road";
-      readonly from: LocationRef;
-      readonly toward: string;
-      readonly background: string;
-    };
+export type Position = {
+  readonly location: LocationRef;
+  readonly background: string;
+};
 
 export type StoryMessage = {
   readonly id: string;

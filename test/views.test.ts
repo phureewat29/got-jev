@@ -1,8 +1,6 @@
 import { Either, Schema } from "effect";
 import { describe, expect, it } from "vitest";
-import * as Background from "@/core/Background";
 import * as Position from "@/core/Position";
-import { regionBackground } from "@/core/data/backgrounds";
 import * as Story from "@/core/Story";
 import * as Wire from "@/server/schemas";
 import * as views from "@/server/views";
@@ -13,20 +11,8 @@ const seed = Story.seed(sessionId, new Date("2026-01-01T00:00:00.000Z"));
 describe("views.position", () => {
   it("resolves a place id into the name the header shows and the artwork behind it", () => {
     expect(views.position(Position.at("kings-landing"))).toEqual({
-      kind: "at",
       location: { id: "kings-landing", name: "King's Landing", region: "Crownlands" },
       background: "/scenes/kings-landing.webp",
-    });
-  });
-
-  it("names the region a journey is heading into and shows that country", () => {
-    expect(
-      views.position(Position.onRoad({ from: "castle-black", toward: "The North", since: 2 })),
-    ).toEqual({
-      kind: "on_road",
-      from: { id: "castle-black", name: "Castle Black", region: "The Wall" },
-      toward: "The North",
-      background: Background.pathOf(regionBackground["The North"]),
     });
   });
 });

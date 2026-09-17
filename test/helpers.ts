@@ -13,21 +13,17 @@ export const otherSessionId = Schema.decodeSync(SessionId)("8c3d5f21-19a4-4b6f-9
 /** Stored answers with only the fields a test cares about spelled out. */
 export const storedAnswers = (options: {
   readonly location?: Record<string, number>;
-  readonly heading?: string;
+  /** Jev's own pick, when a test wants it to disagree with the distribution. */
+  readonly choice?: string;
   readonly beat?: string;
   readonly mood?: string;
   readonly danger?: number;
   readonly inFiction?: number;
 }): StoredAnswers => ({
   location: {
-    choice: Object.keys(options.location ?? {})[0] ?? "castle-black",
+    choice: options.choice ?? Object.keys(options.location ?? {})[0] ?? "castle-black",
     confidence: 0.8,
     probabilities: options.location ?? {},
-  },
-  heading: {
-    choice: options.heading ?? "The North",
-    confidence: 0.8,
-    probabilities: { [options.heading ?? "The North"]: 0.8 },
   },
   beat: {
     choice: options.beat ?? "journey",

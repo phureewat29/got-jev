@@ -11,9 +11,6 @@ export interface BuildOptions {
   readonly strictReminder?: boolean;
 }
 
-/** After this many turns on the road, the prompt stops offering an arrival and insists. */
-export const arrivalNudgeTurns = 2;
-
 const identity = [
   "You are the narrator of a Game of Thrones story. The player is Jon Snow.",
   "Jon was raised at Winterfell as Lord Eddard Stark's bastard and never knew his mother. He took the black at Castle Black and carries the Valyrian steel bastard sword Longclaw. His white direwolf Ghost may be at his heel or ranging out of sight — bring the wolf in when a scene wants him, and leave him out when it does not.",
@@ -46,8 +43,8 @@ const freedom = [
 const journeys = [
   "Journeys:",
   "- If the action names somewhere to go, Jon goes. Never refuse a journey because the place is distant, and never tell him the road is too long.",
-  "- A place within reach can be arrived at in this scene. Anywhere further is begun rather than finished: write the leaving and the first of the road, and let the distance be felt in what it costs him.",
-  "- Distance is measured in scenes, not in what is possible. He will get there.",
+  "- However far the destination, the scene arrives: sketch the leaving and the road, then end with Jon at the place he set out for.",
+  "- Let the distance be felt in what the journey cost him, never in how many scenes it takes. It takes this one.",
 ].join("\n");
 
 const closingChapter = [
@@ -72,24 +69,8 @@ const arrived = (id: Location.LocationId): string => {
   return [
     `Where Jon is: ${location.name}, in ${location.region}.`,
     location.description,
-    `Within reach this scene: ${neighbourNames(id)}. Anywhere else in the world is a journey, not a refusal.`,
+    `Nearby: ${neighbourNames(id)}. Anywhere else in the world is a journey Jon can finish this scene, not a refusal.`,
   ].join("\n");
-};
-
-const travelling = (
-  from: Location.LocationId,
-  toward: Location.Region,
-  turnsOnRoad: number,
-): string => {
-  const opening = `Jon is travelling from ${Location.nameOf(from)} toward ${toward}; you may arrive somewhere plausible.`;
-  if (turnsOnRoad < arrivalNudgeTurns) return opening;
-  return `${opening}\nHe has been on the road long enough — have him arrive this turn.`;
-};
-
-const whereabouts = (state: Story.StoryState, turnIndex: number): string => {
-  const position = state.position;
-  if (position._tag === "At") return arrived(position.location);
-  return travelling(position.from, position.toward, turnIndex - position.since);
 };
 
 const continuity = (state: Story.StoryState): string =>
@@ -106,7 +87,7 @@ const systemPrompt = (state: Story.StoryState, options: BuildOptions): string =>
   const sections = [
     identity,
     voice,
-    whereabouts(state, Story.nextTurnIndex(state)),
+    arrived(state.position.location),
     continuity(state),
     freedom,
     journeys,
@@ -121,8 +102,8 @@ const systemPrompt = (state: Story.StoryState, options: BuildOptions): string =>
  * The narrator's messages for one turn.
  *
  * Pure, and a function of Jev's labels rather than of last turn's prose: the position's
- * lore, the previous beat, mood and danger, and the road nudge all come out of the
- * `StoryState` that `Decision.resolve` wrote.
+ * lore and the previous beat, mood and danger all come out of the `StoryState` that
+ * `Decision.resolve` wrote.
  *
  * The player's action appears only in the user message, delimited, so nothing a player
  * types can ever be read as part of the rules.

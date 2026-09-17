@@ -6,7 +6,7 @@
 
 import type { Region } from "./seed";
 
-/** Backdrop used while travelling toward a region, when no single place applies. */
+/** Backdrop for a whole country, used when a place in it has no picture of its own. */
 export const regionBackground: Record<Region, string> = {
   "The North": "region-the-north",
   "The Wall": "region-the-wall",
@@ -20,7 +20,7 @@ export const regionBackground: Record<Region, string> = {
   "The Reach": "region-the-reach",
   Dorne: "region-dorne",
   Essos: "region-essos",
-  "Westeros (travel)": "region-westeros-travel",
+  "The Roads": "region-westeros-travel",
 };
 
 /** Last resort when neither a place nor its region has a backdrop. */

@@ -35,19 +35,10 @@ export type Place = typeof Place.Type;
  * Where the story stands, on the wire. `background` is the public path of the
  * scene's artwork, resolved here so the browser never carries the catalog.
  */
-export const Position = Schema.Union(
-  Schema.Struct({
-    kind: Schema.Literal("at"),
-    location: Place,
-    background: Schema.String,
-  }),
-  Schema.Struct({
-    kind: Schema.Literal("on_road"),
-    from: Place,
-    toward: Location.Region,
-    background: Schema.String,
-  }),
-);
+export const Position = Schema.Struct({
+  location: Place,
+  background: Schema.String,
+});
 
 /** Where the story stands, on the wire. */
 export type Position = typeof Position.Type;

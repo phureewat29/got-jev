@@ -1,5 +1,6 @@
 import { Option, Schema } from "effect";
 import { locations, type LocationId as CatalogLocationId } from "@/core/data/locations";
+import { openingLocationId } from "@/core/data/prologue";
 import { regions, type Region as SeedRegion } from "@/core/data/seed";
 
 /** One entry of the location catalog, exactly as written in `data/locations.ts`. */
@@ -10,12 +11,6 @@ export const all = locations;
 
 /** Every region name, in catalog order. */
 export const allRegions = regions;
-
-/** The answer for a scene that ends between named places. */
-export const IN_TRANSIT = "in_transit";
-
-/** Everywhere the story can be said to be: a named place, or the road between them. */
-export type Whereabouts = CatalogLocationId | typeof IN_TRANSIT;
 
 /**
  * Index the catalog by id. `Object.fromEntries` cannot prove the result covers
@@ -47,14 +42,14 @@ export const LocationId = Schema.String.pipe(
 /** The literal union of catalog location ids. */
 export type LocationId = typeof LocationId.Type;
 
+/** Where a story with no better answer stands: the place it opens in. */
+export const fallback: LocationId = openingLocationId;
+
 /** A region name, validated against the catalog. */
 export const Region = Schema.String.pipe(Schema.filter(isRegion, { identifier: "Region" }));
 
 /** The literal union of region names. */
 export type Region = typeof Region.Type;
-
-/** The region a journey with no better guess is heading into. */
-export const travelRegion: Region = "Westeros (travel)";
 
 /** Only some sub-places carry a parent, so the catalog's optional field is read through a guard. */
 const withinOf = (location: Location): string | undefined =>

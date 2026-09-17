@@ -7,13 +7,13 @@
 
 A Game of Thrones roleplay where you play Jon Snow. Each turn a story model writes the next
 scene, and then [TypeSafe](https://docs.typesafe.ai)'s **Jev** reads that scene back and
-answers six questions about it: where Jon now stands, which way he is heading, what kind of
-scene it was, how much danger he is in, what should play under it, and whether the prose
-stayed inside the fiction.
+answers five questions about it: where Jon now stands, what kind of scene it was, how much
+danger he is in, what should play under it, and whether the prose stayed inside the
+fiction.
 
 Those answers are values — a location id from a closed set, a probability distribution, a
 score. The header, the soundtrack, the artwork behind the page and the next turn's prompt
-are all functions of the same six answers.
+are all functions of the same five answers.
 
 ## How a turn works
 
@@ -23,12 +23,12 @@ are all functions of the same six answers.
                               ┌────────────────────────────────┘
                               ▼
                      Jev — multiple questions, evaluated in parallel
-                       location · heading · beat · mood · danger · inFiction
+                          location · beat · mood · danger · inFiction
                               │
       ┌───────────────────────┼────────────────────────┐
       ▼                       ▼                        ▼
  Decision.resolve       verify & retry            stored answers
- (pure, probabilities)  (inFiction < 0.5          (replay policy later
+ (pure, probabilities)  (inFiction < 0.5          (re-resolved later
       │                  → regenerate once)        without re-asking Jev)
       ▼
  Location header · music · backdrop · next turn's prompt

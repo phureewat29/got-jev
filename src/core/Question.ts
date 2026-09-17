@@ -29,12 +29,11 @@ export const StoredNoul = Schema.Struct({
 /**
  * Jev's answers as they are written to disk. The keys mirror `Oracle.questions`;
  * the values are looser than the SDK's literal types so that saved turns stay
- * readable when the catalogs move on. `Decision.resolve` reads this shape, which
- * is what makes policy replay over old turns possible.
+ * readable when the catalogs move on. `Decision.resolve` reads this shape and
+ * nothing else, which is what makes re-resolving an old turn possible.
  */
 export const StoredAnswers = Schema.Struct({
   location: StoredChoice,
-  heading: StoredChoice,
   beat: StoredChoice,
   mood: StoredChoice,
   danger: StoredScore,
@@ -50,7 +49,6 @@ export type StoredAnswers = typeof StoredAnswers.Type;
  */
 export interface AnswersLike {
   readonly location: ChoiceResponse;
-  readonly heading: ChoiceResponse;
   readonly beat: ChoiceResponse;
   readonly mood: ChoiceResponse;
   readonly danger: ScoreResponse;
@@ -66,7 +64,6 @@ const storedChoice = (answer: ChoiceResponse): typeof StoredChoice.Type => ({
 /** Widen one request's typed answers into the shape that is persisted and replayed. */
 export const toStored = (answers: AnswersLike): StoredAnswers => ({
   location: storedChoice(answers.location),
-  heading: storedChoice(answers.heading),
   beat: storedChoice(answers.beat),
   mood: storedChoice(answers.mood),
   danger: {

@@ -19,7 +19,7 @@ type HeaderProps = {
 };
 
 const isPosition = (value: unknown): value is Position =>
-  typeof value === "object" && value !== null && "kind" in value;
+  typeof value === "object" && value !== null && "location" in value;
 
 const oneOf =
   <T extends string>(values: ReadonlyArray<string>) =>
@@ -29,11 +29,6 @@ const oneOf =
 const isMood = oneOf<MoodId>(MOODS);
 const isBeat = oneOf<BeatId>(BEATS);
 const isDanger = oneOf<DangerId>(DANGERS);
-
-const placeLine = (position: Position): string => {
-  if (position.kind === "on_road") return `On the road — ${position.toward}`;
-  return `Location: ${position.location.name}`;
-};
 
 const titleCase = (value: string): string => value.charAt(0).toUpperCase() + value.slice(1);
 
@@ -89,7 +84,7 @@ export const Header = ({ turn, total, positionFallback, moodFallback }: HeaderPr
         <span className="logo" aria-hidden="true" />
       </h1>
       <p className="location">
-        <Fading text={placeLine(position)} />
+        <Fading text={`Location: ${position.location.name}`} />
       </p>
       <p className="labels">
         {labels.map(([name, value], index) => (

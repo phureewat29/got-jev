@@ -71,9 +71,7 @@ describe("StoryEngine.playTurn", () => {
     expect(first.turnsRemaining).toBe(14);
     expect(first.decision.inFiction).toBe(true);
 
-    expect(second.decision.position).toEqual(
-      Position.onRoad({ from: "top-of-the-wall", toward: "The North", since: 2 }),
-    );
+    expect(second.decision.position).toEqual(Position.at("top-of-the-wall"));
 
     expect(third.decision.position).toEqual(Position.at("winterfell"));
     expect(third.turn).toBe(3);
@@ -161,7 +159,7 @@ describe("exact answers", () => {
 });
 
 describe("saved turns replay", () => {
-  it("re-decides a stored turn under a stricter threshold", async () => {
+  it("re-decides a stored turn to the decision it was saved with", async () => {
     const program = Effect.gen(function* () {
       yield* StoryEngine.playTurn(sessionId, 0, "I come to Winterfell.");
       return yield* StoryEngine.openStory(sessionId);
@@ -171,12 +169,6 @@ describe("saved turns replay", () => {
     const saved = state.turns[0];
     expect(saved.decision.position).toEqual(Position.at("winterfell"));
 
-    const strict = Decision.resolve({
-      answers: saved.answers,
-      previous: Position.at("castle-black"),
-      turnIndex: 1,
-      tauMove: 0.95,
-    });
-    expect(strict.position).toEqual(Position.at("castle-black"));
+    expect(Decision.resolve(saved.answers)).toEqual(saved.decision);
   });
 });

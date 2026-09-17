@@ -1,4 +1,4 @@
-import { Match, Option } from "effect";
+import { Option } from "effect";
 import { defaultBackground, regionBackground } from "@/core/data/backgrounds";
 import * as Location from "@/core/Location";
 import type * as Position from "@/core/Position";
@@ -48,8 +48,13 @@ export const stemAt = (
     Option.getOrElse(() => defaultBackground),
   );
 
-/** The stem for a journey: the region it heads into, then the default. */
-export const stemToward = (region: string): string =>
+/**
+ * The tail of the chain above on its own: a whole region's artwork, and the
+ * default when even that is missing. A healthy catalog never reaches it through
+ * `stemAt`, so it is named here for the sweep that proves every region has a
+ * picture and that a region nobody has heard of still resolves to something.
+ */
+export const stemForRegion = (region: string): string =>
   regionStem(region).pipe(Option.getOrElse(() => defaultBackground));
 
 /**
@@ -57,10 +62,5 @@ export const stemToward = (region: string): string =>
  * with no picture of its own still renders something of the right country
  * rather than a blank frame.
  */
-export const forPosition: (position: Position.Position) => string = Match.type<
-  Position.Position
->().pipe(
-  Match.tag("At", (at) => pathOf(stemAt(at.location))),
-  Match.tag("OnRoad", (road) => pathOf(stemToward(road.toward))),
-  Match.exhaustive,
-);
+export const forPosition = (position: Position.Position): string =>
+  pathOf(stemAt(position.location));
