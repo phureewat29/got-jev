@@ -426,6 +426,28 @@ body {
   }
 }
 
+/**
+ * The press that opens the tale. It is the reader's first gesture and so the one
+ * that frees the music, which is why the screen ends on a button rather than
+ * dismissing itself.
+ */
+.splash-enter {
+  animation: enter-rise 600ms ease-out both;
+}
+
+@keyframes enter-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-enter {
+    animation: none;
+  }
+}
+
 /** Composer */
 .composer {
   flex: 0 0 auto;

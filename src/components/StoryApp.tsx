@@ -10,6 +10,8 @@ import { Splash } from "./Splash";
 type State =
   | { readonly status: "loading" }
   | { readonly status: "failed" }
+  /** Assets are in; the tale waits on the press that also frees the music. */
+  | { readonly status: "waiting"; readonly story: Story }
   | { readonly status: "ready"; readonly story: Story };
 
 /**
@@ -33,7 +35,7 @@ export const StoryApp = () => {
         // one to describe: the backdrop painted and the track in cache.
         await awaitFirstScene(story.position.background, trackFor(story.mood), controller.signal);
         if (controller.signal.aborted) return;
-        setState({ status: "ready", story });
+        setState({ status: "waiting", story });
       })
       .catch(() => {
         if (controller.signal.aborted) return;
@@ -42,10 +44,15 @@ export const StoryApp = () => {
     return () => controller.abort();
   }, [sessionId, attempt]);
 
-  if (state.status === "loading") {
+  if (state.status === "loading" || state.status === "waiting") {
     return (
       <main className="app app-centred">
-        <Splash />
+        <Splash
+          ready={state.status === "waiting"}
+          onEnter={() =>
+            setState(state.status === "waiting" ? { status: "ready", story: state.story } : state)
+          }
+        />
       </main>
     );
   }

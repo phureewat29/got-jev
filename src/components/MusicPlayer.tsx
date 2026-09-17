@@ -136,19 +136,22 @@ export const MusicPlayer = ({ fallback, started }: MusicPlayerProps) => {
   useEffect(() => setMuted(readMuted()), []);
 
   /**
-   * The first attempt happens on mount and is usually refused, because a page
-   * may not start audio before the reader has touched it. Rather than wait for
-   * a sent turn, the next interaction of any kind — a click, a key, a tap —
-   * retries it, so the music is already under the prologue by the time anyone
-   * starts reading properly.
+   * A page may not start audio before the reader has touched it. The press that
+   * dismisses the splash is that touch, so the first attempt on mount normally
+   * succeeds — but a track still arriving, or a browser in a stricter mood, can
+   * refuse it anyway.
+   *
+   * So every interaction retries until something is actually audible, rather than
+   * the one retry a `once` listener would give. The listeners come off as soon as
+   * sound is reaching the room, and while the bards are deliberately silenced
+   * there is nothing to retry.
    */
   useEffect(() => {
+    if (audible || muted) return;
     const wake = () => setWakes((count) => count + 1);
-    GESTURES.forEach((name) =>
-      window.addEventListener(name, wake, { once: true, passive: true }),
-    );
+    GESTURES.forEach((name) => window.addEventListener(name, wake, { passive: true }));
     return () => GESTURES.forEach((name) => window.removeEventListener(name, wake));
-  }, []);
+  }, [audible, muted]);
 
   /** What is really coming out of the speakers, which is what the bars report. */
   const refreshAudible = () =>
