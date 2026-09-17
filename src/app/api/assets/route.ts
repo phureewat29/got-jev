@@ -1,0 +1,30 @@
+import { defaultBackground, regionBackground } from "@/core/data/backgrounds";
+import * as Background from "@/core/Background";
+import * as Location from "@/core/Location";
+import * as Mood from "@/core/Mood";
+
+export const runtime = "nodejs";
+
+/**
+ * Every backdrop and track the story can reach.
+ *
+ * The catalog is server-side so it stays out of the client bundle, but the browser
+ * needs the list to warm its cache while the reader is still on the first scene.
+ * The answer is the same for everyone and changes only when the catalogs do, so it
+ * is computed once per process and cached hard at the edge.
+ */
+const manifest = {
+  scenes: [
+    ...new Set([
+      ...Location.all.map((location) => Background.pathOf(location.background)),
+      ...Object.values(regionBackground).map(Background.pathOf),
+      Background.pathOf(defaultBackground),
+    ]),
+  ],
+  music: Mood.all.map((mood) => Mood.trackFor(mood.id)),
+};
+
+export const GET = (): Response =>
+  Response.json(manifest, {
+    headers: { "cache-control": "public, max-age=3600, stale-while-revalidate=86400" },
+  });

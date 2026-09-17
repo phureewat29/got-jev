@@ -6,6 +6,7 @@ import {
 } from "@assistant-ui/react";
 import type { Story, StoryMessage } from "./api";
 import { createStoryAdapter } from "./runtime";
+import { usePrefetch } from "./prefetch";
 import { Composer } from "./Composer";
 import { Ended } from "./Ended";
 import { Header } from "./Header";
@@ -83,6 +84,9 @@ export const Chat = ({ story, onNewTale }: ChatProps) => {
   );
 
   const runtime = useLocalRuntime(adapter, { initialMessages });
+
+  // The opening scene is already on screen by the time this mounts, so warm the rest.
+  usePrefetch(true);
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
