@@ -6,27 +6,18 @@
 </p>
 
 <p align="center">
-  <strong>Typed judgment, turn by turn</strong>
-</p>
-
-<p align="center">
-  A Game of Thrones roleplay where you play Jon Snow. A story model writes each scene;
-  TypeSafe's Jev reads it back and decides where you now stand, what kind of scene it was,
-  how much danger you are in, and what should play under it.
-</p>
-
-<p align="center">
   <a href="https://jev.phureewat.com"><strong>jev.phureewat.com</strong></a>
 </p>
 
-<br />
+A Game of Thrones roleplay where you play Jon Snow. Each turn a story model writes the next
+scene, and then [TypeSafe](https://docs.typesafe.ai)'s **Jev** reads that scene back and
+answers six questions about it: where Jon now stands, which way he is heading, what kind of
+scene it was, how much danger he is in, what should play under it, and whether the prose
+stayed inside the fiction.
 
-Each turn, a story model writes the next scene. Then [TypeSafe](https://docs.typesafe.ai)'s
-**Jev** reads that scene and answers multiple questions: where Jon now stands,
-what kind of scene it was, how much danger he is in, what music should play under it, and
-whether the prose stayed inside the fiction. 
-
-Those answers are values — a location id from a closed data set, a probability distribution, a score. The header, the soundtrack, background and the next turn's prompt are all functions of the same six answers from Jev.
+Those answers are values — a location id from a closed set, a probability distribution, a
+score. The header, the soundtrack, the artwork behind the page and the next turn's prompt
+are all functions of the same six answers.
 
 ## How a turn works
 
@@ -35,7 +26,7 @@ Those answers are values — a location id from a closed data set, a probability
                                                                │
                               ┌────────────────────────────────┘
                               ▼
-                     Jev — ONE request, multiple questions, evaluated in parallel
+                     Jev — multiple questions, evaluated in parallel
                        location · heading · beat · mood · danger · inFiction
                               │
       ┌───────────────────────┼────────────────────────┐
@@ -44,7 +35,7 @@ Those answers are values — a location id from a closed data set, a probability
  (pure, probabilities)  (inFiction < 0.5          (replay policy later
       │                  → regenerate once)        without re-asking Jev)
       ▼
- Location header · background music · next turn's prompt
+ Location header · music · backdrop · next turn's prompt
 ```
 
 Jev never writes anything. It labels the story scenario.
@@ -59,7 +50,7 @@ Stories live in Redis, so start one first.
 docker run -d --name story-redis -p 6379:6379 redis:alpine
 
 pnpm install
-cp .env.example .env.local     # then fill in the two API keys
+cp .env.example .env.local     # then fill in the three required values
 pnpm dev                       # http://localhost:3000
 ```
 
@@ -87,9 +78,12 @@ pnpm typecheck
 | | |
 | --- | --- |
 | `GET /api/story/:id` | The transcript so far, or the prologue for a new session. Writes nothing. |
-| `POST /api/story/:id/turn` | `{ action, turn }` → `{ position, mood, beat, text, turn, turnsRemaining, ended }` |
+| `POST /api/story/:id/turn` | `{ action, turn }` → `{ position, mood, beat, danger, text, turn, turnsRemaining, ended }` |
+| `GET /api/health` | `{ ok: true }` |
 
-All model calls happen server-side.
+All model calls happen server-side; the browser never sees a key. `turn` is the number of
+turns the client has seen — a mismatch answers `409 turn_conflict`, which is how two open
+tabs are kept honest without a lock.
 
 ## Notes
 
