@@ -5,9 +5,9 @@ import { describeCause } from "@/core/Errors";
 
 /**
  * The five commands a story store needs from Redis, so the store itself never
- * depends on a particular client.
- * HTTPS and `RedisStore` speaks the wire protocol over TCP; everything above this
- * interface — namespacing, expiry, encoding, error mapping — is shared.
+ * depends on a particular client. `RedisStore` speaks the wire protocol over TCP;
+ * everything above this interface — namespacing, expiry, encoding, error mapping —
+ * is shared.
  */
 export interface RedisOps {
   readonly get: (key: string) => Effect.Effect<string | null, PlatformError>;

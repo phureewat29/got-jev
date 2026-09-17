@@ -12,7 +12,6 @@
   "dependencies": {
     "@assistant-ui/react": "^0.15.20",
     "@effect/platform": "^0.97.2",
-    "@effect/platform-node": "^0.108.2",
     "@typesafe-ai/sdk": "^0.6.0",
     "effect": "^3.22.2",
     "ioredis": "^6.0.0",

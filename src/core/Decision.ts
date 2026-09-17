@@ -2,7 +2,7 @@
  * One Jev request in, the next state out.
  *
  * Jev answers five questions about a scene in a single round trip, and hands back
- * four different shapes of evidence: a distribution over fifty-six places, two
+ * four different shapes of evidence: a distribution over seventy places, two
  * literal choices, a fractional score and a probability. This module is where
  * those collapse into the one record the next turn is written from — each field
  * below is a separate way of reading evidence, and nothing here talks to anything.
@@ -61,7 +61,7 @@ const probabilityOf = (probabilities: Probabilities, label: string): number => {
  * King's Landing" spreads across the city and the places inside it; folding the
  * children back into the parent is what recovers the city.
  */
-export const massOf = (probabilities: Probabilities, id: Location.LocationId): number =>
+const massOf = (probabilities: Probabilities, id: Location.LocationId): number =>
   Location.childrenOf(id).reduce(
     (total, child) => total + probabilityOf(probabilities, child),
     probabilityOf(probabilities, id),

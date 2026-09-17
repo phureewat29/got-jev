@@ -10,9 +10,9 @@ import { useEffect } from "react";
  * nothing — `fetch` does not block rendering, and a worker writes to the same HTTP
  * cache the main thread does.
  *
- * The two kinds of asset are not treated alike. The artwork is 70 files but only a
+ * The two kinds of asset are not treated alike. The artwork is 93 files but only a
  * few megabytes and any location can come next, so all of it is fetched. The music
- * is nine files and most of the weight, so it is fetched only where the connection
+ * is thirteen files and most of the weight, so it is fetched only where the connection
  * suggests nobody is paying by the megabyte — the current track always loads on
  * demand regardless, so the worst case is the fade we already had.
  */

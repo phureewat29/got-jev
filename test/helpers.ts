@@ -7,9 +7,6 @@ import { SessionId, type Turn } from "@/core/Story";
 /** A fixed session id, so a failing test names the same file every time. */
 export const sessionId = Schema.decodeSync(SessionId)("2f6a9c1e-6d7b-4d0e-9d2a-7f2c8b1a4e55");
 
-/** A second session, for tests that need two stories at once. */
-export const otherSessionId = Schema.decodeSync(SessionId)("8c3d5f21-19a4-4b6f-9c8e-1d0b7a6e3f42");
-
 /** Stored answers with only the fields a test cares about spelled out. */
 export const storedAnswers = (options: {
   readonly location?: Record<string, number>;

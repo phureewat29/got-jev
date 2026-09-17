@@ -17,7 +17,7 @@ export const allRegions = regions;
  * every id, so this is the single place that asserts it; `test/catalog.test.ts`
  * checks the assertion holds.
  */
-export const indexById = <A>(f: (location: Location) => A): Record<CatalogLocationId, A> =>
+const indexById = <A>(f: (location: Location) => A): Record<CatalogLocationId, A> =>
   Object.fromEntries(locations.map((location) => [location.id, f(location)])) as Record<
     CatalogLocationId,
     A
@@ -68,12 +68,6 @@ export const childrenOf = (id: LocationId): ReadonlyArray<LocationId> => childId
 
 /** `"Winterfell"` — what a place is called. */
 export const nameOf = (id: LocationId): string => byId[id].name;
-
-/** `"Winterfell (The North)"` — how a place is named to the models and in logs. */
-export const describe = (id: LocationId): string => {
-  const location = byId[id];
-  return `${location.name} (${location.region})`;
-};
 
 /** Plausible next places, as context for the narrator — never a constraint on it. */
 export const nearby = (id: LocationId): ReadonlyArray<Location> =>

@@ -71,7 +71,7 @@ body {
 
 /**
  * The artwork is generated bright on purpose; darkening it is this one
- * element's job, which keeps it adjustable without touching seventy files. It
+ * element's job, which keeps it adjustable without touching ninety-three files. It
  * leans heavier at top and bottom, where the header and the composer sit over
  * whatever the picture happens to be doing there.
  */
@@ -566,22 +566,6 @@ body {
 
 .music audio {
   display: none;
-}
-
-.music-toggle {
-  font-family: var(--font-display), Georgia, serif;
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 4px 0;
-  color: var(--ink-faint);
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.music-toggle:hover {
-  color: var(--accent);
 }
 
 /** Notices */

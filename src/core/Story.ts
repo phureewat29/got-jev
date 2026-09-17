@@ -57,7 +57,7 @@ export const turnsRemaining = (state: StoryState, maxTurns: number): number =>
   Math.max(0, maxTurns - state.turns.length);
 
 /** The turn most recently played. */
-export const lastTurn = (state: StoryState): Option.Option<Turn> =>
+const lastTurn = (state: StoryState): Option.Option<Turn> =>
   Option.fromNullable(state.turns.at(-1));
 
 /** What Jev made of the previous scene, for continuity in the next prompt. */
