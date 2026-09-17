@@ -19,6 +19,20 @@ const firstSceneBudgetMs = 6000;
 
 const ignore = (): undefined => undefined;
 
+/**
+ * Every warm-up here is `mode: "no-cors"`.
+ *
+ * The assets are served from a different origin to the page, and a plain `fetch`
+ * needs `Access-Control-Allow-Origin` on the response, which a CDN bucket has no
+ * reason to send for artwork. Without this the whole warm-up fails CORS and, since
+ * these are deliberately swallowed, fails in silence — the reader gets no prefetch
+ * at all and nothing anywhere says so.
+ *
+ * An opaque response cannot be read, which is fine: nothing here reads a body. It
+ * still populates the HTTP cache, which is the entire point, and `<img>` and
+ * `<audio>` reuse the entry afterwards.
+ */
+
 const artworkReady = (url: string): Promise<void> => {
   const image = new Image();
   image.src = url;
@@ -31,7 +45,7 @@ const artworkReady = (url: string): Promise<void> => {
  * every time.
  */
 const trackReady = (url: string, signal: AbortSignal): Promise<void> =>
-  fetch(url, { signal, cache: "force-cache" }).then(ignore, ignore);
+  fetch(url, { signal, cache: "force-cache", mode: "no-cors" }).then(ignore, ignore);
 
 /** Holds the opening screen until the first backdrop and track arrive, or the budget runs out. */
 export const awaitFirstScene = (
@@ -81,7 +95,12 @@ const drain = async (urls: readonly string[], signal: AbortSignal): Promise<void
     for (;;) {
       const url = queue.shift();
       if (url === undefined || signal.aborted) return;
-      await fetch(url, { signal, cache: "force-cache", priority: "low" }).catch(() => undefined);
+      await fetch(url, {
+        signal,
+        cache: "force-cache",
+        mode: "no-cors",
+        priority: "low",
+      }).catch(() => undefined);
     }
   };
   await Promise.all(Array.from({ length: LANES }, lane));
