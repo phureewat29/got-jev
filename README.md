@@ -5,10 +5,6 @@
   </picture>
 </p>
 
-<p align="center">
-  <a href="https://jev.phureewat.com"><strong>jev.phureewat.com</strong></a>
-</p>
-
 A Game of Thrones roleplay where you play Jon Snow. Each turn a story model writes the next
 scene, and then [TypeSafe](https://docs.typesafe.ai)'s **Jev** reads that scene back and
 answers six questions about it: where Jon now stands, which way he is heading, what kind of
@@ -69,7 +65,7 @@ pnpm dev                       # http://localhost:3000
 | `NEXT_PUBLIC_CDN_URL` | — | Optional. Serve music and artwork from a CDN; unset uses `public/` |
 
 ```bash
-pnpm test        # pure functions + the engine on canned layers, no network
+pnpm test
 pnpm typecheck
 ```
 
