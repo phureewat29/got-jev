@@ -9,6 +9,7 @@ import { createStoryAdapter } from "./runtime";
 import { usePrefetch } from "./prefetch";
 import { Composer } from "./Composer";
 import { Ended } from "./Ended";
+import { Footer } from "./Footer";
 import { Header } from "./Header";
 import { MusicPlayer } from "./MusicPlayer";
 import { RestartButton } from "./RestartButton";
@@ -108,6 +109,7 @@ export const Chat = ({ story, onNewTale }: ChatProps) => {
         <RestartButton onRestart={onNewTale} />
         <MusicPlayer fallback={story.mood} started={started} />
       </div>
+      <Footer />
     </AssistantRuntimeProvider>
   );
 };
