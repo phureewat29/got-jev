@@ -1,8 +1,11 @@
 <p align="center">
+  <br />
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/logo-dark.png">
-    <img src=".github/logo.png" alt="Game of Thrones x Jev" width="460">
+    <img src=".github/logo.png" alt="Game of Thrones x Jev" width="340">
   </picture>
+  <br />
+  <br />
 </p>
 
 A Game of Thrones roleplay where you play Jon Snow. Each turn a story model writes the next
