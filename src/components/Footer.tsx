@@ -16,7 +16,7 @@ export const Footer = () => (
     <span>Authored by Phureewat A</span>
     <a
       className="icon-button"
-      href="https://github.com/phureewat29/got-jev"
+      href="https://github.com/phureewat29/jev-got"
       target="_blank"
       rel="noreferrer"
       aria-label="This tale's source on GitHub"
